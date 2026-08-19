@@ -27,6 +27,7 @@
 ├── _headers                보안 헤더 (Netlify / Cloudflare Pages 전용)
 ├── netlify.toml            Netlify 배포 설정
 ├── .github/workflows/pages.yml   GitHub Pages 자동 배포
+├── brand/                  공식 로고 원본 (SVG·PNG, 인쇄·SNS용 포함)
 ├── tools/                  원본 번들 → 정적 사이트 재생성 스크립트
 └── assets/
     ├── css/site.css        전체 스타일 (압축됨)
@@ -170,6 +171,21 @@ python3 tools/subset_fonts.py
 ```html
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 ```
+
+### 로고 · 파비콘 교체
+
+사이트의 파비콘과 헤더·푸터 로고는 모두 `brand/` 폴더의 공식 파일에서 나옵니다.
+
+- `brand/05_파비콘/` — 파비콘 세트 원본. 빌드 시 최상위로 복사됩니다
+- `brand/04_심볼만/` — 드론볼 심볼 (SNS 프로필, 워터마크용)
+- `brand/01~03_로고_*/` — 인쇄·문서·유니폼용 로고 (밝은배경 / 어두운배경 / 단색)
+- `brand/00_사용안내.txt` — 최소 크기·여백·색상값 등 사용 규칙
+
+로고를 바꾸시려면 `brand/` 안의 파일을 교체하고 `python3 tools/build.py` 를 다시 실행하세요.
+
+> 참고: 브랜드 키트의 `favicon.ico` 는 16×16 한 종류만 들어 있어 고해상도 탭에서
+> 뭉개집니다. 빌드 스크립트가 동일한 아트워크(`icon-512.png`)로 16/32/48 멀티사이즈
+> `favicon.ico` 를 다시 만들어 넣습니다.
 
 ### 이미지 교체
 

@@ -5,8 +5,8 @@ import json, os, re, base64, shutil, hashlib, io, sys
 from PIL import Image, ImageDraw
 
 # 사용법: python3 tools/build.py [원본_번들.html]
-#   원본 번들 HTML(Claude 디자인 캔버스 내보내기)을 배포용 정적 사이트로 다시 만듭니다.
-#   assets/ 만 새로 생성하며 README.md, tools/, .git 등은 건드리지 않습니다.
+#   원본 번들 HTML을 배포용 정적 사이트로 다시 만듭니다.
+#   assets/ 만 새로 생성하며 README.md, tools/, brand/, .git 은 건드리지 않습니다.
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_DIR = os.path.dirname(ROOT)
 OUT = ROOT
@@ -96,40 +96,48 @@ sc = max(tw / og.width, th / og.height)
 og = og.resize((round(og.width * sc), round(og.height * sc)), Image.LANCZOS)
 l = (og.width - tw) // 2; t = (og.height - th) // 2
 og = og.crop((l, t, l + tw, t + th))
+# 하단 스크림 + 공식 화이트 로고(태그라인 없음) 합성 — 공유 미리보기 브랜딩
+_scrim = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
+_d = ImageDraw.Draw(_scrim)
+for _y in range(th - 240, th):
+    _a = int(190 * (_y - (th - 240)) / 240)
+    _d.line([(0, _y), (tw, _y)], fill=(11, 30, 58, _a))
+og = Image.alpha_composite(og.convert("RGBA"), _scrim)
+
+_logo_p = os.path.join(OUT, "brand", "02_로고_어두운배경",
+                       "가치날자_로고_화이트_태그라인없음_1200px.png")
+if os.path.exists(_logo_p):
+    _logo = Image.open(_logo_p).convert("RGBA")
+    _lw = 340
+    _logo = _logo.resize((_lw, round(_logo.height * _lw / _logo.width)), Image.LANCZOS)
+    og.alpha_composite(_logo, (56, th - _logo.height - 48))
+og = og.convert("RGB")
 og.save(os.path.join(OUT, "og-image.jpg"), quality=82, optimize=True, progressive=True)
 
 # ─────────────────────────────────────────────────────────── 3. 파비콘 / 앱 아이콘
-NAVY = (20, 51, 95); LIGHT = (143, 178, 222); WHITE = (255, 255, 255)
+# 공식 브랜드 키트(brand/05_파비콘)가 있으면 그대로 사용합니다.
+BRAND = os.path.join(OUT, "brand")
+FAV = os.path.join(BRAND, "05_파비콘")
+assert os.path.isdir(FAV), f"브랜드 파비콘 폴더를 찾을 수 없습니다: {FAV}"
 
-def draw_icon(size, bg=True, pad=0.0):
-    S = size * 4
-    im = Image.new("RGBA", (S, S), NAVY + (255,) if bg else (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    c = S / 2; r = S * (0.40 - pad)
-    d.ellipse([c - r, c - r, c + r, c + r], outline=WHITE, width=int(S * 0.070))
-    r2 = S * (0.24 - pad * 0.6)
-    d.ellipse([c - r2, c - r2, c + r2, c + r2], outline=LIGHT, width=int(S * 0.020))
-    dx = S * 0.32; dr = S * 0.13
-    d.ellipse([c + dx - dr, c - dx - dr, c + dx + dr, c - dx + dr], fill=LIGHT)
-    d.ellipse([c + dx - dr * .46, c - dx - dr * .46, c + dx + dr * .46, c - dx + dr * .46],
-              outline=NAVY, width=int(S * 0.024))
-    return im.resize((size, size), Image.LANCZOS)
+for f in ["favicon.svg", "apple-touch-icon.png", "icon-192.png",
+          "icon-512.png", "icon-512-maskable.png"]:
+    shutil.copyfile(os.path.join(FAV, f), os.path.join(OUT, f))
 
-draw_icon(180).convert("RGB").save(os.path.join(OUT, "apple-touch-icon.png"))
-draw_icon(192).save(os.path.join(OUT, "icon-192.png"))
-draw_icon(512).save(os.path.join(OUT, "icon-512.png"))
-draw_icon(512, pad=0.07).save(os.path.join(OUT, "icon-512-maskable.png"))
-ico = draw_icon(64)
-ico.save(os.path.join(OUT, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
+# 제공된 favicon.ico 는 16x16 단일이라 고해상도 탭에서 뭉갭니다.
+# 동일한 아트워크(icon-512.png)로 16/32/48 멀티사이즈 ico 를 다시 만듭니다.
+_ico = Image.open(os.path.join(FAV, "icon-512.png")).convert("RGBA")
+_ico.save(os.path.join(OUT, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
+print("icons: 브랜드 키트 적용 (favicon.ico 는 16/32/48 재생성)")
 
-open(os.path.join(OUT, "favicon.svg"), "w", encoding="utf-8").write(
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
-    '<rect width="100" height="100" rx="18" fill="#14335F"/>'
-    '<circle cx="50" cy="50" r="40" fill="none" stroke="#fff" stroke-width="7"/>'
-    '<circle cx="50" cy="50" r="24" fill="none" stroke="#8FB2DE" stroke-width="2" '
-    'stroke-dasharray="4 5" opacity=".75"/>'
-    '<circle cx="82" cy="30" r="13" fill="#8FB2DE"/>'
-    '<circle cx="82" cy="30" r="6" fill="none" stroke="#14335F" stroke-width="2.5"/></svg>'
+# 헤더·푸터·오류페이지에 쓰는 심볼 (브랜드 드론볼, currentColor 로 색 상속)
+LOGOMARK = (
+    '<circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="9.24"></circle>'
+    '<ellipse cx="50" cy="50" rx="44" ry="16.72" fill="none" stroke="currentColor" '
+    'stroke-width="5.28" opacity=".65"></ellipse>'
+    '<ellipse cx="50" cy="50" rx="16.72" ry="44" fill="none" stroke="currentColor" '
+    'stroke-width="5.28" opacity=".65"></ellipse>'
+    '<rect x="37.24" y="42.74" width="25.52" height="14.52" rx="4.4" fill="#14335F"></rect>'
 )
 
 # ─────────────────────────────────────────────────────────── 4. 템플릿 → 정적 HTML
@@ -272,6 +280,11 @@ body = body.replace('<br class="dbr">', '<br class="dbr"> ')
 
 # 4-10c. 헤딩 레벨 정규화 — 비전·미션 h4(6개)는 h2 바로 아래이므로 h3로 승격
 body = body.replace("<h4 ", "<h3 ").replace("</h4>", "</h3>")
+
+# 4-10d. 로고 심볼을 공식 브랜드 드론볼로 교체
+_old_mark = re.search(r'<g id="logomark">.*?</g>', body, re.S)
+assert _old_mark, "logomark 정의를 찾을 수 없습니다"
+body = body.replace(_old_mark.group(0), '<g id="logomark">' + LOGOMARK + '</g>', 1)
 
 # 4-11. <main> 랜드마크
 body = body.replace('<a class="skip-link" href="#value">본문 바로가기</a>',
@@ -613,10 +626,7 @@ font-weight:700;font-size:15px;text-decoration:none}}
 a:focus-visible{{outline:3px solid #8FB2DE;outline-offset:3px}}
 </style></head>
 <body><main>
-<svg viewBox="0 0 100 100" aria-hidden="true">
-<circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="7"/>
-<circle cx="50" cy="50" r="24" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 5" opacity=".7"/>
-<circle cx="82" cy="30" r="13" fill="currentColor"/></svg>
+<svg viewBox="0 0 100 100" aria-hidden="true">{logomark}</svg>
 <h1>{h1}</h1>
 <p>{msg}</p>
 <div class="acts">
@@ -626,9 +636,11 @@ a:focus-visible{{outline:3px solid #8FB2DE;outline-offset:3px}}
 </main></body></html>
 """
 open(os.path.join(OUT, "404.html"), "w", encoding="utf-8").write(ERR_TPL.format(
+    logomark=LOGOMARK,
     title="페이지를 찾을 수 없습니다", h1="페이지를 찾을 수 없습니다",
     msg="주소가 바뀌었거나 삭제된 페이지입니다.<br>홈에서 원하시는 내용을 찾아보세요."))
 open(os.path.join(OUT, "50x.html"), "w", encoding="utf-8").write(ERR_TPL.format(
+    logomark=LOGOMARK,
     title="일시적인 오류", h1="일시적인 오류가 발생했습니다",
     msg="잠시 후 다시 시도해 주세요.<br>문제가 계속되면 전화로 문의해 주시기 바랍니다."))
 
