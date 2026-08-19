@@ -13,4 +13,4 @@ Allow: /
 User-agent: Daumoa
 Allow: /
 
-Sitemap: https://www.kpdsa.or.kr/sitemap.xml
+Sitemap: https://urbanscenttrack.github.io/gachinalgha/sitemap.xml

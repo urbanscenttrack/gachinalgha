@@ -65,7 +65,19 @@ git push -u origin main
 커스텀 도메인을 쓰려면 Settings → Pages → Custom domain 에 `www.kpdsa.or.kr` 을 입력하고,
 도메인 DNS에 `www` CNAME → `<계정>.github.io` 를 추가한 뒤 **Enforce HTTPS** 를 켭니다.
 
-#### ⚠️ 도메인 연결 전 임시 주소로 먼저 올리는 경우
+#### 도메인 연결 시 주소 바꾸기
+
+현재 `canonical` · OG · `sitemap.xml` · `robots.txt` · 구조화 데이터가 모두
+`https://urbanscenttrack.github.io/gachinalgha` 를 가리킵니다.
+
+`www.kpdsa.or.kr` 를 연결하면 `tools/build.py` 맨 위의 **`SITE` 한 줄만** 바꾸고
+다시 빌드하면 전부 따라갑니다.
+
+```python
+SITE = "https://www.kpdsa.or.kr"
+```
+
+#### (참고) 예전 안내 — 임시 주소로 올리는 경우
 
 `index.html` 의 `canonical`, `og:url`, `og:image`, `twitter:image`, 구조화 데이터 안의 URL,
 그리고 `sitemap.xml` / `robots.txt` 가 모두 `https://www.kpdsa.or.kr` 를 가리키고 있습니다.

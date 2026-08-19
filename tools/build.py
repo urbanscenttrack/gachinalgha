@@ -8,7 +8,9 @@ from PIL import Image, ImageDraw
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_DIR = os.path.dirname(ROOT)
 OUT = ROOT
-SITE = "https://www.kpdsa.or.kr"
+# 배포 주소. 커스텀 도메인(www.kpdsa.or.kr) 연결 후에는 이 한 줄만 바꾸면
+# canonical·OG·sitemap·robots·구조화데이터가 한꺼번에 따라갑니다.
+SITE = "https://urbanscenttrack.github.io/gachinalgha"
 
 if len(sys.argv) > 1:
     src = sys.argv[1]
@@ -64,7 +66,6 @@ ROLES = {
 }
 
 img_info = {}   # uuid -> dict(webp=[(path,w)], avif=[...], w, h)
-hero_img = None
 for uuid, e in manifest.items():
     if not e["mime"].startswith("image/"):
         continue
@@ -72,8 +73,6 @@ for uuid, e in manifest.items():
     im = Image.open(io.BytesIO(base64.b64decode(e["data"])))
     im = im.convert("RGB")
     ow, oh = im.size
-    if role == "hero":
-        hero_img = im.copy()
     widths = sorted({min(ow, cap), max(320, min(ow, cap) // 2)}, reverse=True)
     out = {"sizes": sizes, "role": role, "webp": [], "avif": []}
     for w in widths:
@@ -87,30 +86,27 @@ for uuid, e in manifest.items():
     img_info[uuid] = out
     print(f"  img {role}: {ow}x{oh} -> {widths}")
 
-# OG 이미지 (1200x630) — 히어로 이미지 중앙 크롭
-og = hero_img.copy()
-tw, th = 1200, 630
-sc = max(tw / og.width, th / og.height)
-og = og.resize((round(og.width * sc), round(og.height * sc)), Image.LANCZOS)
-l = (og.width - tw) // 2; t = (og.height - th) // 2
-og = og.crop((l, t, l + tw, t + th))
-# 하단 스크림 + 공식 화이트 로고(태그라인 없음) 합성 — 공유 미리보기 브랜딩
-_scrim = Image.new("RGBA", (tw, th), (0, 0, 0, 0))
-_d = ImageDraw.Draw(_scrim)
-for _y in range(th - 240, th):
-    _a = int(190 * (_y - (th - 240)) / 240)
-    _d.line([(0, _y), (tw, _y)], fill=(11, 30, 58, _a))
-og = Image.alpha_composite(og.convert("RGBA"), _scrim)
+# OG 이미지 (1200x630) — 공식 로고 중심 카드
+# 사진 위 작은 로고는 카톡·SNS 썸네일에서 뭉개져서, 로고를 크게 쓰는 편이 잘 읽힙니다.
+_OGW, _OGH = 1200, 630
+og = Image.new("RGB", (_OGW, _OGH), (255, 255, 255))
+_dg = ImageDraw.Draw(og)
+for _y in range(_OGH):                       # 아주 옅은 세로 그라데이션
+    _t = _y / _OGH
+    _dg.line([(0, _y), (_OGW, _y)],
+             fill=(round(255 - 12 * _t), round(255 - 8 * _t), round(255 - 3 * _t)))
+_dg.rectangle([0, _OGH - 10, _OGW, _OGH], fill=(20, 51, 95))   # 하단 브랜드 바
 
-_logo_p = os.path.join(OUT, "brand", "02_로고_어두운배경",
-                       "가치날자_로고_화이트_태그라인없음_1200px.png")
-if os.path.exists(_logo_p):
-    _logo = Image.open(_logo_p).convert("RGBA")
-    _lw = 340
-    _logo = _logo.resize((_lw, round(_logo.height * _lw / _logo.width)), Image.LANCZOS)
-    og.alpha_composite(_logo, (56, th - _logo.height - 48))
+_logo_p = os.path.join(OUT, "brand", "01_로고_기본", "가치날자_로고_1600px.png")
+assert os.path.exists(_logo_p), f"로고를 찾을 수 없습니다: {_logo_p}"
+_logo = Image.open(_logo_p).convert("RGBA")
+_lw = 820
+_logo = _logo.resize((_lw, round(_logo.height * _lw / _logo.width)), Image.LANCZOS)
+og = og.convert("RGBA")
+og.alpha_composite(_logo, ((_OGW - _logo.width) // 2, (_OGH - 10 - _logo.height) // 2))
 og = og.convert("RGB")
-og.save(os.path.join(OUT, "og-image.jpg"), quality=82, optimize=True, progressive=True)
+og.save(os.path.join(OUT, "og-image.jpg"), quality=88, optimize=True, progressive=True)
+print("og-image: 공식 로고 카드")
 
 # ─────────────────────────────────────────────────────────── 3. 파비콘 / 앱 아이콘
 # 공식 브랜드 키트(brand/05_파비콘)가 있으면 그대로 사용합니다.
@@ -332,6 +328,36 @@ body = body.replace(_cta_old,
 body = body.replace('border:1.5px dashed #BFCCDD;border-radius:16px;padding:26px 36px;color:#2F6BB3;',
                     f'border:1.5px dashed #E6B4A6;border-radius:16px;padding:26px 36px;color:{ACC_SOFT};', 1)
 
+# 4-10f. 모바일 전용 클래스 부여 (데스크톱 스타일은 건드리지 않음)
+def _add_class(sig, cls):
+    global body
+    def _rep(m):
+        tag = m.group(0)
+        if 'class="' in tag:
+            return re.sub(r'class="([^"]*)"',
+                          lambda mm: f'class="{mm.group(1)} {cls}"', tag, count=1)
+        return tag[:-1].rstrip() + f' {cls and chr(99)}lass="{cls}">'
+    n = len(re.findall(r'<[a-zA-Z][^>]*' + re.escape(sig) + r'[^>]*>', body))
+    assert n > 0, f"모바일 클래스 대상 없음: {sig[:50]}"
+    body = re.sub(r'<[a-zA-Z][^>]*' + re.escape(sig) + r'[^>]*>', _rep, body)
+    return n
+
+_counts = {
+    "m-sec":      _add_class("style=\"padding:120px 0", "m-sec"),
+    "m-sec2":     _add_class("background:#0E2749;color:#fff;padding:130px 0", "m-sec"),
+    "m-card":     _add_class("background:#F5F7FA;border:1px solid transparent;border-radius:18px", "m-card"),
+    "m-cardimg":  _add_class('style="height:240px;flex:none"', "m-cardimg"),
+    "m-cardbody": _add_class("padding:34px 38px 38px", "m-cardbody"),
+    "m-card2":    _add_class("background:#fff;border:1px solid #E4EAF1;border-radius:18px;padding:40px 32px", "m-card2"),
+    "m-card3":    _add_class("background:#fff;border:1px solid #E4EAF1;border-radius:16px;padding:30px 32px", "m-card3"),
+    "m-card4":    _add_class("background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.13);border-radius:18px;padding:36px 32px", "m-card4"),
+    "hero-copy":  _add_class("max-width:620px;text-align:left;margin-left:24px", "hero-copy"),
+    "hero-cta":   _add_class("display:flex;gap:12px;margin-top:44px;flex-wrap:wrap", "hero-cta"),
+    "hero-tag":   _add_class("margin:60px 0 0;display:flex;align-items:center;gap:14px", "hero-tag"),
+    "hero-scrim": _add_class("background:linear-gradient(90deg,#0C2140 0%", "hero-scrim"),
+}
+print("모바일 클래스:", _counts)
+
 # 4-11. <main> 랜드마크
 body = body.replace('<a class="skip-link" href="#value">본문 바로가기</a>',
                     '<a class="skip-link" href="#main">본문 바로가기</a>')
@@ -368,8 +394,35 @@ footer a{display:inline-block;padding:5px 2px;min-height:24px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 """
 hover_rules = [(c, d.replace("border-color:#2F6BB3", "border-color:#D23A18")) for c, d in hover_rules]
+MOBILE_CSS = """
+/* ── 모바일 전용 (≤960px). 데스크톱 레이아웃에는 영향 없음 ── */
+@media (max-width:960px){
+  body{line-height:1.72}
+
+  /* 섹션 여백 압축 + 밝은 섹션 대비를 조금 더 줘서 구획이 보이게 */
+  .m-sec{padding-top:72px!important;padding-bottom:72px!important}
+  #about,#story,#partner{background:#EDF2F8!important}
+
+  /* 히어로 — 가운데 정렬 */
+  #top{padding:118px 0 84px!important}
+  .hero-copy{max-width:100%!important;margin-left:0!important;margin-right:0!important;text-align:center!important}
+  .hero-copy p{margin-left:auto!important;margin-right:auto!important}
+  .hero-scrim{background:linear-gradient(180deg,rgba(9,24,47,.74) 0%,rgba(9,24,47,.56) 42%,rgba(9,24,47,.88) 100%)!important}
+  .hero-cta{flex-direction:column!important;align-items:center!important;gap:10px!important;margin-top:32px!important}
+  .hero-cta a{width:100%!important;max-width:300px!important;justify-content:center!important}
+  .hero-tag{justify-content:center!important;text-align:center!important;margin-top:40px!important;gap:10px!important}
+
+  /* 카드 경계를 또렷하게 — 배경만으로는 구분이 안 됨 */
+  .m-card{background:#fff!important;border-color:#D6E0EC!important;box-shadow:0 2px 12px rgba(20,51,95,.07)!important}
+  .m-cardimg{height:200px!important}
+  .m-cardbody{padding:24px 22px 28px!important}
+  .m-card2{padding:30px 24px!important;border-color:#D6E0EC!important}
+  .m-card3{padding:26px 22px!important;border-color:#D6E0EC!important}
+  .m-card4{padding:28px 22px!important;background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.2)!important}
+}
+"""
 hover_css = "".join(f".{c}:hover{{{d}}}" for c, d in hover_rules)
-site_css = font_css + "\n" + base_css + "\n" + extra_css.strip() + "\n" + hover_css
+site_css = font_css + "\n" + base_css + "\n" + extra_css.strip() + "\n" + hover_css + "\n" + MOBILE_CSS
 
 def minify_css(s):
     s = re.sub(r"/\*.*?\*/", "", s, flags=re.S)
