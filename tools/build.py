@@ -355,6 +355,7 @@ _counts = {
     "hero-cta":   _add_class("display:flex;gap:12px;margin-top:44px;flex-wrap:wrap", "hero-cta"),
     "hero-tag":   _add_class("margin:60px 0 0;display:flex;align-items:center;gap:14px", "hero-tag"),
     "hero-scrim": _add_class("background:linear-gradient(90deg,#0C2140 0%", "hero-scrim"),
+    "hero-eyebrow": _add_class("letter-spacing:.24em;color:rgba(255,255,255,.72);text-transform:uppercase", "hero-eyebrow"),
 }
 print("모바일 클래스:", _counts)
 
@@ -403,14 +404,14 @@ MOBILE_CSS = """
   .m-sec{padding-top:72px!important;padding-bottom:72px!important}
   #about,#story,#partner{background:#EDF2F8!important}
 
-  /* 히어로 — 가운데 정렬 */
-  #top{padding:118px 0 84px!important}
-  .hero-copy{max-width:100%!important;margin-left:0!important;margin-right:0!important;text-align:center!important}
-  .hero-copy p{margin-left:auto!important;margin-right:auto!important}
+  /* 히어로 — 왼쪽 정렬, 군더더기 제거 */
+  #top{padding:112px 0 76px!important;min-height:auto!important}
+  .hero-copy{max-width:100%!important;margin-left:0!important;margin-right:0!important;text-align:left!important}
+  .hero-eyebrow{display:none!important}   /* 영문 협회명 — 모바일에서는 생략 */
+  .hero-tag{display:none!important}       /* 태그라인 줄 — 모바일에서는 생략 */
   .hero-scrim{background:linear-gradient(180deg,rgba(9,24,47,.74) 0%,rgba(9,24,47,.56) 42%,rgba(9,24,47,.88) 100%)!important}
-  .hero-cta{flex-direction:column!important;align-items:center!important;gap:10px!important;margin-top:32px!important}
-  .hero-cta a{width:100%!important;max-width:300px!important;justify-content:center!important}
-  .hero-tag{justify-content:center!important;text-align:center!important;margin-top:40px!important;gap:10px!important}
+  .hero-cta{flex-direction:column!important;align-items:flex-start!important;gap:10px!important;margin-top:34px!important}
+  .hero-cta a{width:100%!important;max-width:320px!important;justify-content:center!important}
 
   /* 카드 경계를 또렷하게 — 배경만으로는 구분이 안 됨 */
   .m-card{background:#fff!important;border-color:#D6E0EC!important;box-shadow:0 2px 12px rgba(20,51,95,.07)!important}
