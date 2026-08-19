@@ -328,6 +328,19 @@ body = body.replace(_cta_old,
 body = body.replace('border:1.5px dashed #BFCCDD;border-radius:16px;padding:26px 36px;color:#2F6BB3;',
                     f'border:1.5px dashed #E6B4A6;border-radius:16px;padding:26px 36px;color:{ACC_SOFT};', 1)
 
+# 4-10e2. 히어로 태그라인을 조각별로 감싸 모바일에서 따로 제어
+_tag_old = ('<span style="width:32px;height:1.5px;background:rgba(255,255,255,.32)"></span>'
+            '<b style="color:#fff;font-weight:800;font-size:clamp(17px,1.9vw,21px);'
+            'letter-spacing:-.01em">가치날자</b> — 같이 날자, 가치있게 날자 · Fly together, Play together')
+_tag_new = ('<span class="hero-tag-line" style="width:32px;height:1.5px;'
+            'background:rgba(255,255,255,.32)"></span>'
+            '<b style="color:#fff;font-weight:800;font-size:clamp(17px,1.9vw,21px);'
+            'letter-spacing:-.01em">가치날자</b>'
+            '<span class="hero-tag-txt"><span class="hero-tag-dash">— </span>'
+            '같이 날자, 가치있게 날자 · Fly together, Play together</span>')
+assert _tag_old in body, "히어로 태그라인 패턴 불일치"
+body = body.replace(_tag_old, _tag_new, 1)
+
 # 4-10f. 모바일 전용 클래스 부여 (데스크톱 스타일은 건드리지 않음)
 def _add_class(sig, cls):
     global body
@@ -408,10 +421,19 @@ MOBILE_CSS = """
   #top{padding:112px 0 76px!important;min-height:auto!important}
   .hero-copy{max-width:100%!important;margin-left:0!important;margin-right:0!important;text-align:left!important}
   .hero-eyebrow{display:none!important}   /* 영문 협회명 — 모바일에서는 생략 */
-  .hero-tag{display:none!important}       /* 태그라인 줄 — 모바일에서는 생략 */
   .hero-scrim{background:linear-gradient(180deg,rgba(9,24,47,.74) 0%,rgba(9,24,47,.56) 42%,rgba(9,24,47,.88) 100%)!important}
-  .hero-cta{flex-direction:column!important;align-items:flex-start!important;gap:10px!important;margin-top:34px!important}
-  .hero-cta a{width:100%!important;max-width:320px!important;justify-content:center!important}
+  .hero-copy > p{font-size:15.5px!important;margin-top:20px!important}
+
+  /* 버튼 — 내용 폭에 맞춰 작게, 왼쪽 정렬 */
+  .hero-cta{flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:8px!important;margin-top:26px!important}
+  .hero-cta a{width:auto!important;max-width:none!important;font-size:14px!important;
+    padding:12px 20px!important;min-height:44px!important;justify-content:center!important}
+
+  /* 태그라인 — 장식 대시는 빼고 두 줄로 */
+  .hero-tag{display:block!important;margin-top:30px!important;font-size:14px!important;line-height:1.6!important}
+  .hero-tag-line,.hero-tag-dash{display:none!important}
+  .hero-tag b{display:block!important;font-size:16px!important;margin-bottom:1px!important}
+  .hero-tag-txt{display:block!important}
 
   /* 카드 경계를 또렷하게 — 배경만으로는 구분이 안 됨 */
   .m-card{background:#fff!important;border-color:#D6E0EC!important;box-shadow:0 2px 12px rgba(20,51,95,.07)!important}
