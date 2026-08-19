@@ -5,8 +5,6 @@ import json, os, re, base64, shutil, hashlib, io, sys
 from PIL import Image, ImageDraw
 
 # 사용법: python3 tools/build.py [원본_번들.html]
-#   원본 번들 HTML을 배포용 정적 사이트로 다시 만듭니다.
-#   assets/ 만 새로 생성하며 README.md, tools/, brand/, .git 은 건드리지 않습니다.
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_DIR = os.path.dirname(ROOT)
 OUT = ROOT
@@ -286,6 +284,54 @@ _old_mark = re.search(r'<g id="logomark">.*?</g>', body, re.S)
 assert _old_mark, "logomark 정의를 찾을 수 없습니다"
 body = body.replace(_old_mark.group(0), '<g id="logomark">' + LOGOMARK + '</g>', 1)
 
+# 4-10e. 포인트 컬러(코랄) 도입 — 파랑 일변도에서 벗어나 액션·라벨에 강조
+#   ACC      #D23A18  버튼 채움 / 흰 배경 위 텍스트  (흰글자 4.82:1, 흰배경 4.82:1)
+#   ACC_SOFT #C8360F  회색(#F5F7FA) 배경 위 작은 텍스트 (4.90:1)
+#   ACC_LITE #FF8A6E  네이비 배경 위 텍스트           (5.46:1)
+ACC, ACC_SOFT, ACC_LITE = "#D23A18", "#C8360F", "#FF8A6E"
+
+# (a) 섹션 머리말 라벨 — 밝은 섹션 6곳
+body = body.replace("letter-spacing:.16em;color:#2F6BB3;text-transform:uppercase",
+                    f"letter-spacing:.16em;color:{ACC_SOFT};text-transform:uppercase")
+# (b) 섹션 머리말 라벨 — 어두운 Contact 섹션
+body = body.replace("letter-spacing:.16em;color:#8FB2DE;text-transform:uppercase",
+                    f"letter-spacing:.16em;color:{ACC_LITE};text-transform:uppercase")
+# (c) PROGRAM 01~04 라벨 (회색 카드 위)
+body = body.replace('letter-spacing:.14em;color:#2F6BB3">PROGRAM',
+                    f'letter-spacing:.14em;color:{ACC_SOFT}">PROGRAM')
+# (d) 비전·미션 번호 01/02/03 (회색 배경 위)
+body = body.replace('color:#2F6BB3;padding-top:3px">',
+                    f'color:{ACC_SOFT};padding-top:3px">')
+# (e) 문의 카드 화살표 (네이비 배경 위)
+for _t in ["전화 걸기", "메일 보내기", "블로그 방문"]:
+    body = body.replace(f'color:#8FB2DE">{_t}', f'color:{ACC_LITE}">{_t}')
+# (f) 드론축구 다이어그램의 RED TEAM 톤 통일
+body = body.replace("color:#C4472F", f"color:{ACC_SOFT}")
+
+# (g) 히어로 헤드라인 — "성장합니다" 강조
+_h1_old = "같이 웃고,<br>같이 성장합니다.</h1>"
+assert _h1_old in body, "히어로 h1 패턴 불일치"
+body = body.replace(_h1_old,
+                    f'같이 웃고,<br>같이 <span style="color:{ACC_LITE}">성장합니다</span>.</h1>', 1)
+
+# (h) 헤더 CTA — 흰 알약에서 코랄 채움으로
+_hdr_old = 'style="font-size:14px;font-weight:700;color:#14335F;background:#fff;padding:12px 24px'
+assert _hdr_old in body, "헤더 CTA 패턴 불일치"
+body = body.replace(_hdr_old,
+                    f'style="font-size:14px;font-weight:700;color:#fff;background:{ACC};padding:12px 24px', 1)
+body = body.replace('border-radius:999px;transition:transform .2s,background .3s,color .3s;box-shadow:0 4px 16px rgba(0,0,0,.14)',
+                    'border-radius:999px;transition:transform .2s,background .3s,color .3s;box-shadow:0 4px 16px rgba(210,58,24,.34)', 1)
+
+# (i) 히어로 1차 CTA — 흰 버튼에서 코랄 버튼으로
+_cta_old = 'box-sizing:border-box;background:#fff;color:#14335F;box-shadow:0 8px 28px rgba(0,0,0,.24)'
+assert _cta_old in body, "히어로 CTA 패턴 불일치"
+body = body.replace(_cta_old,
+                    f'box-sizing:border-box;background:{ACC};color:#fff;box-shadow:0 8px 28px rgba(210,58,24,.38)', 1)
+
+# (j) 파트너 점선 CTA
+body = body.replace('border:1.5px dashed #BFCCDD;border-radius:16px;padding:26px 36px;color:#2F6BB3;',
+                    f'border:1.5px dashed #E6B4A6;border-radius:16px;padding:26px 36px;color:{ACC_SOFT};', 1)
+
 # 4-11. <main> 랜드마크
 body = body.replace('<a class="skip-link" href="#value">본문 바로가기</a>',
                     '<a class="skip-link" href="#main">본문 바로가기</a>')
@@ -321,6 +367,7 @@ footer a{display:inline-block;padding:5px 2px;min-height:24px}
 @media print{#siteHeader,#mobileNav{display:none!important}[data-reveal]{opacity:1!important;transform:none!important}body{color:#000}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 """
+hover_rules = [(c, d.replace("border-color:#2F6BB3", "border-color:#D23A18")) for c, d in hover_rules]
 hover_css = "".join(f".{c}:hover{{{d}}}" for c, d in hover_rules)
 site_css = font_css + "\n" + base_css + "\n" + extra_css.strip() + "\n" + hover_css
 
@@ -359,7 +406,7 @@ function applyHdr(){
   if(logo)logo.style.color=on?'#14335F':'#fff';
   if(links)links.style.color=on?'#4A5A70':'rgba(255,255,255,.8)';
   if(btn)btn.style.color=on?'#14335F':'#fff';
-  if(cta){cta.style.background=on?'#14335F':'#fff';cta.style.color=on?'#fff':'#14335F';}
+  if(cta){cta.style.background='#D23A18';cta.style.color='#fff';}
 }
 window.addEventListener('scroll',applyHdr,{passive:true});
 applyHdr();

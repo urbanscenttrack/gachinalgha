@@ -12,7 +12,7 @@ hdr.style.boxShadow=on?'0 1px 0 #E4EAF1':'none';
 if(logo)logo.style.color=on?'#14335F':'#fff';
 if(links)links.style.color=on?'#4A5A70':'rgba(255,255,255,.8)';
 if(btn)btn.style.color=on?'#14335F':'#fff';
-if(cta){cta.style.background=on?'#14335F':'#fff';cta.style.color=on?'#fff':'#14335F';}
+if(cta){cta.style.background='#D23A18';cta.style.color='#fff';}
 }
 window.addEventListener('scroll',applyHdr,{passive:true});
 applyHdr();
