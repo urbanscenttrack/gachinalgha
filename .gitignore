@@ -1,0 +1,8 @@
+.DS_Store
+Thumbs.db
+node_modules/
+*.log
+
+# 원본 번들 파일(10MB)은 저장소에 포함하지 않습니다
+*_최종.html
+대한장애인드론축구협회*.html
