@@ -301,14 +301,13 @@ body = body.replace('color:#2F6BB3;padding-top:3px">',
 # (e) 문의 카드 화살표 (네이비 배경 위)
 for _t in ["전화 걸기", "메일 보내기", "블로그 방문"]:
     body = body.replace(f'color:#8FB2DE">{_t}', f'color:{ACC_LITE}">{_t}')
-# (f) 드론축구 다이어그램의 RED TEAM 톤 통일
-body = body.replace("color:#C4472F", f"color:{ACC_SOFT}")
+# (f) RED TEAM 라벨은 팀 색이라 포인트 컬러와 분리해 그대로 둡니다.
 
 # (g) 히어로 헤드라인 — "성장합니다" 강조
 _h1_old = "같이 웃고,<br>같이 성장합니다.</h1>"
 assert _h1_old in body, "히어로 h1 패턴 불일치"
 body = body.replace(_h1_old,
-                    f'같이 웃고,<br>같이 <span style="color:{ACC_LITE}">성장합니다</span>.</h1>', 1)
+                    f'같이 웃고,<br>같이 <span class="a-h1" style="color:{ACC_LITE}">성장합니다</span>.</h1>', 1)
 
 # (h) 헤더 CTA — 흰 알약에서 코랄 채움으로
 _hdr_old = 'style="font-size:14px;font-weight:700;color:#14335F;background:#fff;padding:12px 24px'
@@ -355,6 +354,33 @@ def _add_class(sig, cls):
     body = re.sub(r'<[a-zA-Z][^>]*' + re.escape(sig) + r'[^>]*>', _rep, body)
     return n
 
+# 바람(비행 궤적) 레이어 — 스크롤에 반응해 옆으로 흐릅니다
+_STREAKS = [(16, -12, 190, 0.45), (33, 8, 270, 0.85), (51, -6, 150, 1.25),
+            (67, 22, 310, 0.60), (84, 2, 210, 1.05)]
+WIND = ('<span class="wind" aria-hidden="true">' + "".join(
+    f'<span class="wind-streak" style="top:{t}%;left:{l}%;width:{w}px" data-f="{f}"></span>'
+    for t, l, w, f in _STREAKS) + '</span>')
+
+for _host_sig, _label in [
+    ('<span aria-hidden="true" style="position:absolute;right:0;top:0;bottom:0;width:60%;'
+     'background:radial-gradient(closest-side,rgba(9,24,47,.55),transparent 72%)"></span>', "hero"),
+]:
+    assert _host_sig in body, f"바람 레이어 삽입 위치 없음: {_label}"
+    body = body.replace(_host_sig, _host_sig + WIND, 1)
+
+# 신념 섹션(어두운 배경) — 그라데이션 오버레이 뒤에 삽입
+_belief = re.search(r'<span aria-hidden="true" style="position:absolute;inset:0;'
+                    r'background:linear-gradient\(92deg[^>]*></span>', body)
+assert _belief, "신념 섹션 오버레이를 찾을 수 없습니다"
+body = body.replace(_belief.group(0), _belief.group(0) + WIND, 1)
+
+# 문의 섹션 — position 이 없으므로 클래스로 부여
+body = body.replace('<section id="contact" style="padding:120px 0;',
+                    '<section id="contact" class="wind-host" style="padding:120px 0;', 1)
+_ci = body.index('<section id="contact"')
+_ce = body.index('>', _ci) + 1
+body = body[:_ce] + WIND + body[_ce:]
+
 _counts = {
     "m-sec":      _add_class("style=\"padding:120px 0", "m-sec"),
     "m-sec2":     _add_class("background:#0E2749;color:#fff;padding:130px 0", "m-sec"),
@@ -369,6 +395,13 @@ _counts = {
     "hero-tag":   _add_class("margin:60px 0 0;display:flex;align-items:center;gap:14px", "hero-tag"),
     "hero-scrim": _add_class("background:linear-gradient(90deg,#0C2140 0%", "hero-scrim"),
     "hero-eyebrow": _add_class("letter-spacing:.24em;color:rgba(255,255,255,.72);text-transform:uppercase", "hero-eyebrow"),
+    # 포인트 컬러 요소 — 모바일에서 브랜드 블루로 되돌리기 위한 표식
+    "a-soft":  _add_class(f"color:{ACC_SOFT}", "a-soft"),
+    "a-lite":  _add_class(f"color:{ACC_LITE}", "a-lite"),
+    "a-fill":  _add_class(f"background:{ACC};color:#fff", "a-fill"),
+    "a-dash":  _add_class("dashed #E6B4A6", "a-dash"),
+    # 갤러리 타일 (호버 확대용)
+    "gal-item": _add_class("min-width:0", "gal-item"),
 }
 print("모바일 클래스:", _counts)
 
@@ -406,6 +439,40 @@ footer a{display:inline-block;padding:5px 2px;min-height:24px}
 #hdrLinks a{display:inline-block;padding:9px 2px}
 @media print{#siteHeader,#mobileNav{display:none!important}[data-reveal]{opacity:1!important;transform:none!important}body{color:#000}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+
+/* ── 바람(비행 궤적) 레이어 ── */
+.wind-host{position:relative;overflow:hidden}
+.wind-host>div{position:relative;z-index:1}
+.wind{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.wind-streak{position:absolute;height:2px;border-radius:2px;opacity:.12;
+  background:repeating-linear-gradient(90deg,#8FB2DE 0 15px,transparent 15px 28px);
+  will-change:transform,opacity}
+.hero-bg{will-change:transform;transform-origin:50% 50%}
+
+/* ── 히어로 진입 ── */
+@keyframes heroUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+.hero-copy>*{animation:heroUp .85s cubic-bezier(.22,.61,.36,1) both}
+.hero-copy>*:nth-child(1){animation-delay:.06s}
+.hero-copy>*:nth-child(2){animation-delay:.14s}
+.hero-copy>*:nth-child(3){animation-delay:.24s}
+.hero-copy>*:nth-child(4){animation-delay:.34s}
+.hero-copy>*:nth-child(5){animation-delay:.44s}
+
+/* ── 모바일 메뉴 슬라이드 ── */
+@keyframes navDrop{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+#mobileNav:not([hidden]){animation:navDrop .28s cubic-bezier(.22,.61,.36,1) both}
+
+/* ── 이미지 호버 확대 (마우스 환경만) ── */
+.gal-item{overflow:hidden;border-radius:14px}
+@media (hover:hover){
+  .m-card picture img,.gal-item img{transition:transform .8s cubic-bezier(.22,.61,.36,1)}
+  .m-card:hover picture img,.gal-item:hover img{transform:scale(1.06)}
+  .m-card4 p:last-child{transition:transform .3s ease}
+  .m-card4:hover p:last-child{transform:translateX(6px)}
+}
+
+/* ── 버튼 누름 반응 ── */
+.hero-cta a:active,#hdrCta:active{transform:translateY(1px) scale(.985)}
 """
 hover_rules = [(c, d.replace("border-color:#2F6BB3", "border-color:#D23A18")) for c, d in hover_rules]
 MOBILE_CSS = """
@@ -428,6 +495,15 @@ MOBILE_CSS = """
   .hero-cta{flex-direction:row!important;justify-content:flex-start!important;align-items:center!important;gap:8px!important;margin-top:26px!important}
   .hero-cta a{width:auto!important;max-width:none!important;font-size:14px!important;
     padding:12px 20px!important;min-height:44px!important;justify-content:center!important}
+
+  /* 포인트 컬러는 모바일에서 사용하지 않음 — 브랜드 블루로 복귀 */
+  .a-soft{color:#2F6BB3!important}
+  .a-lite{color:#8FB2DE!important}
+  .a-h1{color:#fff!important}
+  .a-fill{background:#fff!important;color:#14335F!important;
+    box-shadow:0 8px 28px rgba(0,0,0,.24)!important}
+  .a-dash{border-color:#BFCCDD!important}
+  #hdrCta{box-shadow:0 4px 16px rgba(0,0,0,.14)!important}
 
   /* 태그라인 — 장식 대시는 빼고 두 줄로 */
   .hero-tag{display:block!important;margin-top:30px!important;font-size:14px!important;line-height:1.6!important}
@@ -482,9 +558,14 @@ function applyHdr(){
   if(logo)logo.style.color=on?'#14335F':'#fff';
   if(links)links.style.color=on?'#4A5A70':'rgba(255,255,255,.8)';
   if(btn)btn.style.color=on?'#14335F':'#fff';
-  if(cta){cta.style.background='#D23A18';cta.style.color='#fff';}
+  if(cta){
+    if(window.matchMedia('(max-width:960px)').matches){
+      cta.style.background=on?'#14335F':'#fff';cta.style.color=on?'#fff':'#14335F';
+    }else{ cta.style.background='#D23A18';cta.style.color='#fff'; }
+  }
 }
 window.addEventListener('scroll',applyHdr,{passive:true});
+window.addEventListener('resize',applyHdr);
 applyHdr();
 
 function setMenu(open){
@@ -510,10 +591,11 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches&&'Intersection
         var i=hiddenEls.indexOf(e.target); if(i>-1)hiddenEls.splice(i,1);}
     });
   },{threshold:.12});
-  document.querySelectorAll('[data-reveal]').forEach(function(el){
+  document.querySelectorAll('[data-reveal]').forEach(function(el,idx){
     if(el.getBoundingClientRect().top>window.innerHeight*.92){
       el.style.opacity='0';el.style.transform='translateY(22px)';
       el.style.transition='opacity .7s ease, transform .7s ease';
+      el.style.transitionDelay=(idx%3*0.09).toFixed(2)+'s';
       hiddenEls.push(el); io.observe(el);
     }
   });
@@ -525,6 +607,32 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches&&'Intersection
     if(document.visibilityState==='visible')setTimeout(revealAll,1200);
   });
   window.addEventListener('beforeprint',revealAll);
+}
+
+/* ── 바람 효과 — 스크롤 속도에 반응하는 비행 궤적 + 히어로 패럴랙스 ── */
+var streaks=[].slice.call(document.querySelectorAll('.wind-streak'));
+var heroBg=document.querySelector('.hero-bg');
+if((streaks.length||heroBg)&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  var offs=streaks.map(function(){return 0}),lastY=window.scrollY,vel=0,raf=null;
+  function windFrame(){
+    var y=window.scrollY,d=y-lastY;lastY=y;
+    vel+=(Math.abs(d)-vel)*0.12;
+    var alive=vel>0.3;
+    for(var i=0;i<streaks.length;i++){
+      var f=parseFloat(streaks[i].getAttribute('data-f'))||1;
+      offs[i]=(offs[i]-d*f*1.7)*0.94;
+      if(offs[i]>340)offs[i]=340; else if(offs[i]<-340)offs[i]=-340;
+      if(Math.abs(offs[i])>0.3)alive=true;
+      streaks[i].style.transform='translate3d('+offs[i].toFixed(1)+'px,0,0)';
+      streaks[i].style.opacity=(0.10+Math.min(vel,26)*0.021).toFixed(3);
+    }
+    if(heroBg&&y<window.innerHeight*1.3){
+      heroBg.style.transform='translate3d(0,'+Math.min(y*0.10,40).toFixed(1)+'px,0) scale(1.10)';
+    }
+    raf=alive?requestAnimationFrame(windFrame):null;
+  }
+  window.addEventListener('scroll',function(){if(!raf)raf=requestAnimationFrame(windFrame);},{passive:true});
+  windFrame();
 }
 
 /* ── 이벤트 추적 (GA4가 설정된 경우에만 동작) ── */
