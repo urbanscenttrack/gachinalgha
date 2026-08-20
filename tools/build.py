@@ -354,33 +354,6 @@ def _add_class(sig, cls):
     body = re.sub(r'<[a-zA-Z][^>]*' + re.escape(sig) + r'[^>]*>', _rep, body)
     return n
 
-# 바람(비행 궤적) 레이어 — 스크롤에 반응해 옆으로 흐릅니다
-_STREAKS = [(16, -12, 190, 0.45), (33, 8, 270, 0.85), (51, -6, 150, 1.25),
-            (67, 22, 310, 0.60), (84, 2, 210, 1.05)]
-WIND = ('<span class="wind" aria-hidden="true">' + "".join(
-    f'<span class="wind-streak" style="top:{t}%;left:{l}%;width:{w}px" data-f="{f}"></span>'
-    for t, l, w, f in _STREAKS) + '</span>')
-
-for _host_sig, _label in [
-    ('<span aria-hidden="true" style="position:absolute;right:0;top:0;bottom:0;width:60%;'
-     'background:radial-gradient(closest-side,rgba(9,24,47,.55),transparent 72%)"></span>', "hero"),
-]:
-    assert _host_sig in body, f"바람 레이어 삽입 위치 없음: {_label}"
-    body = body.replace(_host_sig, _host_sig + WIND, 1)
-
-# 신념 섹션(어두운 배경) — 그라데이션 오버레이 뒤에 삽입
-_belief = re.search(r'<span aria-hidden="true" style="position:absolute;inset:0;'
-                    r'background:linear-gradient\(92deg[^>]*></span>', body)
-assert _belief, "신념 섹션 오버레이를 찾을 수 없습니다"
-body = body.replace(_belief.group(0), _belief.group(0) + WIND, 1)
-
-# 문의 섹션 — position 이 없으므로 클래스로 부여
-body = body.replace('<section id="contact" style="padding:120px 0;',
-                    '<section id="contact" class="wind-host" style="padding:120px 0;', 1)
-_ci = body.index('<section id="contact"')
-_ce = body.index('>', _ci) + 1
-body = body[:_ce] + WIND + body[_ce:]
-
 _counts = {
     "m-sec":      _add_class("style=\"padding:120px 0", "m-sec"),
     "m-sec2":     _add_class("background:#0E2749;color:#fff;padding:130px 0", "m-sec"),
@@ -440,14 +413,6 @@ footer a{display:inline-block;padding:5px 2px;min-height:24px}
 @media print{#siteHeader,#mobileNav{display:none!important}[data-reveal]{opacity:1!important;transform:none!important}body{color:#000}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 
-/* ── 바람(비행 궤적) 레이어 ── */
-.wind-host{position:relative;overflow:hidden}
-.wind-host>div{position:relative;z-index:1}
-.wind{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.wind-streak{position:absolute;height:2px;border-radius:2px;opacity:.12;
-  background:repeating-linear-gradient(90deg,#8FB2DE 0 15px,transparent 15px 28px);
-  will-change:transform,opacity}
-.hero-bg{will-change:transform;transform-origin:50% 50%}
 
 /* ── 히어로 진입 ── */
 @keyframes heroUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
@@ -607,32 +572,6 @@ if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches&&'Intersection
     if(document.visibilityState==='visible')setTimeout(revealAll,1200);
   });
   window.addEventListener('beforeprint',revealAll);
-}
-
-/* ── 바람 효과 — 스크롤 속도에 반응하는 비행 궤적 + 히어로 패럴랙스 ── */
-var streaks=[].slice.call(document.querySelectorAll('.wind-streak'));
-var heroBg=document.querySelector('.hero-bg');
-if((streaks.length||heroBg)&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-  var offs=streaks.map(function(){return 0}),lastY=window.scrollY,vel=0,raf=null;
-  function windFrame(){
-    var y=window.scrollY,d=y-lastY;lastY=y;
-    vel+=(Math.abs(d)-vel)*0.12;
-    var alive=vel>0.3;
-    for(var i=0;i<streaks.length;i++){
-      var f=parseFloat(streaks[i].getAttribute('data-f'))||1;
-      offs[i]=(offs[i]-d*f*1.7)*0.94;
-      if(offs[i]>340)offs[i]=340; else if(offs[i]<-340)offs[i]=-340;
-      if(Math.abs(offs[i])>0.3)alive=true;
-      streaks[i].style.transform='translate3d('+offs[i].toFixed(1)+'px,0,0)';
-      streaks[i].style.opacity=(0.10+Math.min(vel,26)*0.021).toFixed(3);
-    }
-    if(heroBg&&y<window.innerHeight*1.3){
-      heroBg.style.transform='translate3d(0,'+Math.min(y*0.10,40).toFixed(1)+'px,0) scale(1.10)';
-    }
-    raf=alive?requestAnimationFrame(windFrame):null;
-  }
-  window.addEventListener('scroll',function(){if(!raf)raf=requestAnimationFrame(windFrame);},{passive:true});
-  windFrame();
 }
 
 /* ── 이벤트 추적 (GA4가 설정된 경우에만 동작) ── */
