@@ -28,7 +28,7 @@
 ├── netlify.toml            Netlify 배포 설정
 ├── .github/workflows/pages.yml   GitHub Pages 자동 배포
 ├── brand/                  공식 로고 원본 (SVG·PNG, 인쇄·SNS용 포함)
-├── tools/                  원본 번들 → 정적 사이트 재생성 스크립트
+├── tools/                  원본 번들 → 정적 사이트 재생성 스크립트 (배포에 포함되지 않음)
 └── assets/
     ├── css/site.css        전체 스타일 (압축됨)
     ├── js/site.js          헤더·모바일 메뉴·스크롤 애니메이션·이벤트 추적
@@ -261,7 +261,20 @@ python3 tools/subset_fonts.py
 
 ---
 
-## 7. 라이선스 / 저작권
+## 7. 참고 — GitHub 언어 통계
+
+저장소 상단의 Languages 막대는 `.gitattributes` 로 조정해 두었습니다.
+
+- `tools/**` — 빌드 도구(Python). 방문자에게 전달되지 않으므로 `linguist-vendored` 로 제외
+- `brand/**` — 로고 원본. 코드가 아니므로 제외
+- `assets/css/site.css`, `assets/js/site.js` — 압축돼 있어 linguist 가 "자동 생성 파일"로
+  분류하고 통계에서 빼버리므로 `linguist-generated=false` 로 되살림
+
+통계에서 제외했을 뿐 파일은 그대로 저장소에 있습니다.
+
+---
+
+## 8. 라이선스 / 저작권
 
 - 사이트 콘텐츠 및 사진: © 대한장애인드론축구협회. 무단 사용을 금합니다.
 - 본문 글꼴: [Pretendard](https://github.com/orioncactus/pretendard) (SIL Open Font License 1.1)
