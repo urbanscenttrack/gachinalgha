@@ -13,4 +13,4 @@ Allow: /
 User-agent: Daumoa
 Allow: /
 
-Sitemap: https://urbanscenttrack.github.io/gachinalgha/sitemap.xml
+Sitemap: https://gachinalja.co.kr/sitemap.xml

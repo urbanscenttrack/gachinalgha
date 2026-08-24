@@ -10,7 +10,7 @@ SRC_DIR = os.path.dirname(ROOT)
 OUT = ROOT
 # 배포 주소. 커스텀 도메인(www.kpdsa.or.kr) 연결 후에는 이 한 줄만 바꾸면
 # canonical·OG·sitemap·robots·구조화데이터가 한꺼번에 따라갑니다.
-SITE = "https://urbanscenttrack.github.io/gachinalgha"
+SITE = "https://gachinalja.co.kr"
 
 if len(sys.argv) > 1:
     src = sys.argv[1]

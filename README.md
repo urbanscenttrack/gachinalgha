@@ -4,7 +4,7 @@
 
 정적 사이트(HTML/CSS/JS)입니다. 빌드 도구나 런타임 의존성 없이 그대로 배포됩니다.
 
-- **운영 도메인(예정)**: https://www.kpdsa.or.kr
+- **운영 도메인**: https://gachinalja.co.kr
 - **네이버 블로그**: https://blog.naver.com/droneboy123
 - **문의**: 010-8877-8936 / kpdsa2024@gmail.com
 
@@ -66,32 +66,38 @@ git push -u origin main
 커스텀 도메인을 쓰려면 Settings → Pages → Custom domain 에 `www.kpdsa.or.kr` 을 입력하고,
 도메인 DNS에 `www` CNAME → `<계정>.github.io` 를 추가한 뒤 **Enforce HTTPS** 를 켭니다.
 
-#### 도메인 연결 시 주소 바꾸기
+#### 커스텀 도메인 연결 — gachinalja.co.kr
 
-현재 `canonical` · OG · `sitemap.xml` · `robots.txt` · 구조화 데이터가 모두
-`https://urbanscenttrack.github.io/gachinalgha` 를 가리킵니다.
+`canonical` · OG · `sitemap.xml` · `robots.txt` · 구조화 데이터가 모두
+`https://gachinalja.co.kr` 로 이미 맞춰져 있고, 저장소 루트에 `CNAME` 파일도
+넣어 두었습니다. 남은 건 **DNS 설정**과 **GitHub Pages 설정** 두 가지뿐입니다.
 
-`www.kpdsa.or.kr` 를 연결하면 `tools/build.py` 맨 위의 **`SITE` 한 줄만** 바꾸고
-다시 빌드하면 전부 따라갑니다.
+**1) 도메인 등록기관(가비아·후이즈·카페24 등)에서 DNS 레코드 추가**
 
-```python
-SITE = "https://www.kpdsa.or.kr"
+| 타입 | 호스트 | 값 |
+|---|---|---|
+| A | @ (또는 공백) | 185.199.108.153 |
+| A | @ | 185.199.109.153 |
+| A | @ | 185.199.110.153 |
+| A | @ | 185.199.111.153 |
+| CNAME | www | urbanscenttrack.github.io |
+
+A 레코드 4개는 GitHub Pages 공식 IP로, `gachinalja.co.kr` (www 없는 주소)로
+바로 접속했을 때 쓰입니다. `www.gachinalja.co.kr` 로 들어온 방문자는
+CNAME 레코드를 통해 자동으로 루트 도메인으로 리다이렉트됩니다.
+
+**2) GitHub 저장소에서 도메인 등록**
+
+```
+https://github.com/urbanscenttrack/gachinalgha/settings/pages
 ```
 
-#### (참고) 예전 안내 — 임시 주소로 올리는 경우
+**Custom domain** 에 `gachinalja.co.kr` 을 입력하고 저장 → DNS 확인이 끝나면
+**Enforce HTTPS** 를 켭니다. (자동 인증서 발급까지 몇 분~몇 시간 걸릴 수 있습니다)
 
-`index.html` 의 `canonical`, `og:url`, `og:image`, `twitter:image`, 구조화 데이터 안의 URL,
-그리고 `sitemap.xml` / `robots.txt` 가 모두 `https://www.kpdsa.or.kr` 를 가리키고 있습니다.
-
-`<계정>.github.io/<저장소>/` 같은 임시 주소로 먼저 공개한다면 **검색엔진에 등록하기 전에**
-그 주소로 일괄 치환하세요. 도메인이 준비되면 다시 되돌립니다.
-
-```bash
-sed -i '' 's|https://www.kpdsa.or.kr|https://<계정>.github.io/<저장소>|g' index.html sitemap.xml robots.txt
-```
-
-임시 주소로 운영하는 동안에는 검색엔진 등록을 미루는 편이 낫습니다.
-잘못된 canonical로 색인되면 도메인 연결 후 정리에 시간이 걸립니다.
+> **.co.kr 도메인은 DNS 전파가 국내 등록기관 특성상 몇 시간~최대 48시간 걸릴 수 있습니다.**
+> 그 사이 GitHub Pages 화면에 "DNS 확인 안 됨"이 떠도 정상이니 시간을 두고 새로고침하세요.
+> 확인은 `dig gachinalja.co.kr` 또는 [whatsmydns.net](https://www.whatsmydns.net/#A/gachinalja.co.kr) 으로.
 
 > GitHub Pages는 HTTPS를 지원하지만 **응답 헤더를 지정할 수 없습니다.** `_headers` 파일이 무시되므로
 > CSP·HSTS 같은 보안 헤더가 적용되지 않습니다. 헤더까지 적용하려면 아래 방법 B를 쓰세요.
