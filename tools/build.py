@@ -788,7 +788,7 @@ head = f"""<!doctype html>
 <meta name="twitter:image:alt" content="대한장애인드론축구협회 - 같이 날고, 같이 웃고, 같이 성장합니다">
 
 <!-- 검색엔진 소유확인 — 각 콘솔에서 발급받은 값으로 교체 후 주석 해제 -->
-<!-- <meta name="naver-site-verification" content="NAVER_VERIFICATION_CODE"> -->
+<meta name="naver-site-verification" content="6b416343850fb86ff10b9be7f6fead7fe8ea09ba">
 <!-- <meta name="google-site-verification" content="GOOGLE_VERIFICATION_CODE"> -->
 <!-- <meta name="msvalidate.01" content="BING_VERIFICATION_CODE"> -->
 
