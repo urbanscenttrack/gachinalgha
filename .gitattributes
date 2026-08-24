@@ -1,17 +1,7 @@
 * text=auto eol=lf
-
 *.woff2 binary
 *.webp binary
 *.avif binary
 *.png binary
 *.jpg binary
 *.ico binary
-
-# ── GitHub 언어 통계 보정 (linguist) ──
-# 빌드 도구와 브랜드 원본은 웹사이트에 전달되는 코드가 아니므로 통계에서 제외
-tools/** linguist-vendored
-brand/** linguist-vendored
-
-# 압축된 CSS/JS 가 "자동 생성 파일"로 분류돼 통계에서 빠지는 것을 방지
-assets/css/site.css linguist-generated=false
-assets/js/site.js   linguist-generated=false

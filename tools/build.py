@@ -97,42 +97,56 @@ for _y in range(_OGH):                       # 아주 옅은 세로 그라데이
              fill=(round(255 - 12 * _t), round(255 - 8 * _t), round(255 - 3 * _t)))
 _dg.rectangle([0, _OGH - 10, _OGW, _OGH], fill=(20, 51, 95))   # 하단 브랜드 바
 
-_logo_p = os.path.join(OUT, "brand", "01_로고_기본", "가치날자_로고_1600px.png")
-assert os.path.exists(_logo_p), f"로고를 찾을 수 없습니다: {_logo_p}"
-_logo = Image.open(_logo_p).convert("RGBA")
-_lw = 820
-_logo = _logo.resize((_lw, round(_logo.height * _lw / _logo.width)), Image.LANCZOS)
+EMBLEM_SRC = os.path.join(OUT, "brand", "06_협회엠블럼", "엠블럼_마스터_1398px.png")
+assert os.path.exists(EMBLEM_SRC), f"엠블럼 원본을 찾을 수 없습니다: {EMBLEM_SRC}"
+EMBLEM = Image.open(EMBLEM_SRC).convert("RGBA")
+
+_e = EMBLEM.resize((470, 470), Image.LANCZOS)
 og = og.convert("RGBA")
-og.alpha_composite(_logo, ((_OGW - _logo.width) // 2, (_OGH - 10 - _logo.height) // 2))
+og.alpha_composite(_e, ((_OGW - 470) // 2, (_OGH - 10 - 470) // 2))
 og = og.convert("RGB")
 og.save(os.path.join(OUT, "og-image.jpg"), quality=88, optimize=True, progressive=True)
-print("og-image: 공식 로고 카드")
+print("og-image: 협회 엠블럼")
 
 # ─────────────────────────────────────────────────────────── 3. 파비콘 / 앱 아이콘
-# 공식 브랜드 키트(brand/05_파비콘)가 있으면 그대로 사용합니다.
-BRAND = os.path.join(OUT, "brand")
-FAV = os.path.join(BRAND, "05_파비콘")
-assert os.path.isdir(FAV), f"브랜드 파비콘 폴더를 찾을 수 없습니다: {FAV}"
+# 협회 공식 엠블럼(원형 크레스트)으로 생성합니다.
+def _icon(size, inner_ratio=0.92, bg=(255, 255, 255)):
+    """흰 바탕에 엠블럼을 얹은 정사각 아이콘."""
+    im = Image.new("RGBA", (size, size), bg + (255,))
+    d = round(size * inner_ratio)
+    e = EMBLEM.resize((d, d), Image.LANCZOS)
+    im.alpha_composite(e, ((size - d) // 2, (size - d) // 2))
+    return im
 
-for f in ["favicon.svg", "apple-touch-icon.png", "icon-192.png",
-          "icon-512.png", "icon-512-maskable.png"]:
-    shutil.copyfile(os.path.join(FAV, f), os.path.join(OUT, f))
+def _save_png(im, name, colors=192):
+    """사진이 아닌 로고이므로 팔레트로 줄여 용량을 크게 낮춥니다."""
+    q = im.convert("RGBA").quantize(colors=colors, method=Image.FASTOCTREE)
+    q.save(os.path.join(OUT, name), optimize=True)
 
-# 제공된 favicon.ico 는 16x16 단일이라 고해상도 탭에서 뭉갭니다.
-# 동일한 아트워크(icon-512.png)로 16/32/48 멀티사이즈 ico 를 다시 만듭니다.
-_ico = Image.open(os.path.join(FAV, "icon-512.png")).convert("RGBA")
-_ico.save(os.path.join(OUT, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
-print("icons: 브랜드 키트 적용 (favicon.ico 는 16/32/48 재생성)")
+_icon(180).convert("RGB").save(os.path.join(OUT, "apple-touch-icon.png"), optimize=True)
+_save_png(_icon(192), "icon-192.png")
+_save_png(_icon(512), "icon-512.png", colors=224)
+# maskable 은 바깥 20%가 잘릴 수 있어 안전영역(72%)에 맞춰 축소
+_save_png(_icon(512, inner_ratio=0.72), "icon-512-maskable.png", colors=224)
+_icon(64).save(os.path.join(OUT, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
 
-# 헤더·푸터·오류페이지에 쓰는 심볼 (브랜드 드론볼, currentColor 로 색 상속)
-LOGOMARK = (
-    '<circle cx="50" cy="50" r="44" fill="none" stroke="currentColor" stroke-width="9.24"></circle>'
-    '<ellipse cx="50" cy="50" rx="44" ry="16.72" fill="none" stroke="currentColor" '
-    'stroke-width="5.28" opacity=".65"></ellipse>'
-    '<ellipse cx="50" cy="50" rx="16.72" ry="44" fill="none" stroke="currentColor" '
-    'stroke-width="5.28" opacity=".65"></ellipse>'
-    '<rect x="37.24" y="42.74" width="25.52" height="14.52" rx="4.4" fill="#14335F"></rect>'
-)
+# 헤더·푸터 로고 — 투명 WebP (PNG 대비 1/5 수준)
+_em = EMBLEM.resize((256, 256), Image.LANCZOS)
+_em.save(os.path.join(OUT, "assets/img/emblem-256.webp"), quality=88, method=6)
+_save_png(_em, "assets/img/emblem-256.png")   # 구형 브라우저 대비
+
+# 이전 벡터 파비콘은 엠블럼을 벡터로 변환할 수 없어 사용하지 않습니다.
+_old_svg = os.path.join(OUT, "favicon.svg")
+if os.path.exists(_old_svg):
+    os.remove(_old_svg)
+print("icons: 협회 엠블럼으로 생성 (favicon.svg 제거)")
+
+# 헤더·푸터·오류페이지 로고 마크업
+EMBLEM_IMG = ('<picture style="flex:none;display:block;width:{px}px;height:{px}px">'
+              '<source type="image/webp" srcset="assets/img/emblem-256.webp">'
+              '<img src="assets/img/emblem-256.png" alt="" width="256" height="256" '
+              'style="width:{px}px;height:{px}px;display:block" '
+              'aria-hidden="true" decoding="async"></picture>')
 
 # ─────────────────────────────────────────────────────────── 4. 템플릿 → 정적 HTML
 body = tpl.split("<body>", 1)[1].rsplit("</body>", 1)[0]
@@ -275,11 +289,6 @@ body = body.replace('<br class="dbr">', '<br class="dbr"> ')
 # 4-10c. 헤딩 레벨 정규화 — 비전·미션 h4(6개)는 h2 바로 아래이므로 h3로 승격
 body = body.replace("<h4 ", "<h3 ").replace("</h4>", "</h3>")
 
-# 4-10d. 로고 심볼을 공식 브랜드 드론볼로 교체
-_old_mark = re.search(r'<g id="logomark">.*?</g>', body, re.S)
-assert _old_mark, "logomark 정의를 찾을 수 없습니다"
-body = body.replace(_old_mark.group(0), '<g id="logomark">' + LOGOMARK + '</g>', 1)
-
 # 4-10e. 포인트 컬러(코랄) 도입 — 파랑 일변도에서 벗어나 액션·라벨에 강조
 #   ACC      #D23A18  버튼 채움 / 흰 배경 위 텍스트  (흰글자 4.82:1, 흰배경 4.82:1)
 #   ACC_SOFT #C8360F  회색(#F5F7FA) 배경 위 작은 텍스트 (4.90:1)
@@ -377,6 +386,16 @@ _counts = {
     "gal-item": _add_class("min-width:0", "gal-item"),
 }
 print("모바일 클래스:", _counts)
+
+# 4-10d2. 헤더·푸터 로고를 협회 엠블럼 이미지로 교체
+_mark_old = ('<svg viewBox="0 0 100 100" style="width:34px;height:34px;flex:none;color:#8FB2DE" '
+             'aria-hidden="true"><use href="#logomark"></use></svg>')
+assert body.count(_mark_old) == 2, f"로고 마크 개수 불일치: {body.count(_mark_old)}"
+body = body.replace(_mark_old, EMBLEM_IMG.format(px=40))
+
+# 더 이상 쓰이지 않는 logomark 정의 제거
+body = re.sub(r'<g id="logomark">.*?</g>\s*', "", body, flags=re.S)
+assert "logomark" not in body
 
 # 4-11. <main> 랜드마크
 body = body.replace('<a class="skip-link" href="#value">본문 바로가기</a>',
@@ -691,7 +710,7 @@ head = f"""<!doctype html>
 <!-- <meta name="msvalidate.01" content="BING_VERIFICATION_CODE"> -->
 
 <link rel="icon" href="favicon.ico" sizes="32x32">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 
@@ -776,7 +795,6 @@ ERR_TPL = """<!doctype html>
 <title>{title} | 대한장애인드론축구협회</title>
 <meta name="robots" content="noindex,follow">
 <meta name="theme-color" content="#14335F">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.ico" sizes="32x32">
 <style>
 *{{box-sizing:border-box}}
@@ -785,7 +803,7 @@ background:radial-gradient(880px 480px at 20% 20%,rgba(47,107,179,.25),transpare
 color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
 text-align:center;padding:40px 24px;word-break:keep-all;line-height:1.8}}
 main{{max-width:520px}}
-svg{{width:76px;height:76px;color:#8FB2DE}}
+.mark{{width:92px;height:92px;display:block;margin:0 auto}}
 h1{{margin:28px 0 0;font-size:clamp(28px,6vw,42px);font-weight:800;letter-spacing:-.03em}}
 p{{margin:16px 0 0;color:rgba(255,255,255,.8);font-size:16px}}
 .acts{{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:36px}}
@@ -796,7 +814,7 @@ font-weight:700;font-size:15px;text-decoration:none}}
 a:focus-visible{{outline:3px solid #8FB2DE;outline-offset:3px}}
 </style></head>
 <body><main>
-<svg viewBox="0 0 100 100" aria-hidden="true">{logomark}</svg>
+<img src="icon-192.png" alt="" width="192" height="192" class="mark">
 <h1>{h1}</h1>
 <p>{msg}</p>
 <div class="acts">
@@ -806,11 +824,9 @@ a:focus-visible{{outline:3px solid #8FB2DE;outline-offset:3px}}
 </main></body></html>
 """
 open(os.path.join(OUT, "404.html"), "w", encoding="utf-8").write(ERR_TPL.format(
-    logomark=LOGOMARK,
     title="페이지를 찾을 수 없습니다", h1="페이지를 찾을 수 없습니다",
     msg="주소가 바뀌었거나 삭제된 페이지입니다.<br>홈에서 원하시는 내용을 찾아보세요."))
 open(os.path.join(OUT, "50x.html"), "w", encoding="utf-8").write(ERR_TPL.format(
-    logomark=LOGOMARK,
     title="일시적인 오류", h1="일시적인 오류가 발생했습니다",
     msg="잠시 후 다시 시도해 주세요.<br>문제가 계속되면 전화로 문의해 주시기 바랍니다."))
 

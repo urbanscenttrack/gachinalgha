@@ -21,13 +21,13 @@
 ├── sitemap.xml             사이트맵
 ├── site.webmanifest        PWA 매니페스트 (홈 화면 추가)
 ├── og-image.jpg            SNS 공유 미리보기 이미지 (1200×630)
-├── favicon.ico / favicon.svg
+├── favicon.ico
 ├── apple-touch-icon.png    iOS 홈 화면 아이콘 (180×180)
 ├── icon-192.png / icon-512.png / icon-512-maskable.png
 ├── _headers                보안 헤더 (Netlify / Cloudflare Pages 전용)
 ├── netlify.toml            Netlify 배포 설정
 ├── .github/workflows/pages.yml   GitHub Pages 자동 배포
-├── brand/                  공식 로고 원본 (SVG·PNG, 인쇄·SNS용 포함)
+├── brand/                  로고 원본 (06_협회엠블럼 = 현재 사용 중)
 ├── tools/                  원본 번들 → 정적 사이트 재생성 스크립트 (배포에 포함되지 않음)
 └── assets/
     ├── css/site.css        전체 스타일 (압축됨)
@@ -186,18 +186,30 @@ python3 tools/subset_fonts.py
 
 ### 로고 · 파비콘 교체
 
-사이트의 파비콘과 헤더·푸터 로고는 모두 `brand/` 폴더의 공식 파일에서 나옵니다.
+사이트에 등장하는 **모든 로고는 협회 공식 엠블럼 하나**에서 생성됩니다.
+원본은 `brand/06_협회엠블럼/` 에 있습니다.
 
-- `brand/05_파비콘/` — 파비콘 세트 원본. 빌드 시 최상위로 복사됩니다
-- `brand/04_심볼만/` — 드론볼 심볼 (SNS 프로필, 워터마크용)
-- `brand/01~03_로고_*/` — 인쇄·문서·유니폼용 로고 (밝은배경 / 어두운배경 / 단색)
-- `brand/00_사용안내.txt` — 최소 크기·여백·색상값 등 사용 규칙
+| 쓰이는 곳 | 파일 |
+|---|---|
+| 헤더 · 푸터 로고 (40px) | `assets/img/emblem-256.webp` (+ png 대체) |
+| 브라우저 탭 | `favicon.ico` (16/32/48) · `icon-192.png` |
+| iOS 홈 화면 | `apple-touch-icon.png` |
+| 안드로이드 / PWA | `icon-192.png` · `icon-512.png` · `icon-512-maskable.png` |
+| 카카오톡 · SNS 미리보기 | `og-image.jpg` |
+| 404 / 50x 페이지 | `icon-192.png` |
+| 구조화 데이터 `logo` | `icon-512.png` |
 
-로고를 바꾸시려면 `brand/` 안의 파일을 교체하고 `python3 tools/build.py` 를 다시 실행하세요.
+**교체하려면** `brand/06_협회엠블럼/엠블럼_마스터_1398px.png` 를 같은 규격
+(정사각형 · 배경 투명 · 원형 바깥 잘라냄)으로 바꾸고 `python3 tools/build.py` 를
+실행하면 위 9종이 한꺼번에 다시 만들어집니다.
 
-> 참고: 브랜드 키트의 `favicon.ico` 는 16×16 한 종류만 들어 있어 고해상도 탭에서
-> 뭉개집니다. 빌드 스크립트가 동일한 아트워크(`icon-512.png`)로 16/32/48 멀티사이즈
-> `favicon.ico` 를 다시 만들어 넣습니다.
+> **작은 크기에서의 한계** — 엠블럼은 바깥 띠에 글자가 들어간 크레스트라
+> 16~32px 브라우저 탭에서는 글자가 뭉개집니다. 원형 엠블럼의 공통된 특성으로,
+> 그 크기에서는 빨강·남색 원형 실루엣으로 인지됩니다. 탭에서도 형태를 또렷하게
+> 하려면 가운데 심볼(별+사람)만 잘라낸 별도 파비콘이 필요합니다.
+
+> **이전 아이덴티티** — "가치날자" 워드마크 세트는 `brand/01~05_*` 에 그대로
+> 보관돼 있습니다. 현재 홈페이지에는 사용되지 않습니다.
 
 ### 포인트 컬러(코랄)
 
