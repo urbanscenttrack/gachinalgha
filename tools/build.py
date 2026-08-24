@@ -395,6 +395,33 @@ _counts = {
     "a-dash":  _add_class("dashed #E6B4A6", "a-dash"),
     # 갤러리 타일 (호버 확대용)
     "gal-item": _add_class("min-width:0", "gal-item"),
+
+    # ── 모바일 콘텐츠 압축용 (아래 전부 데스크톱 스타일에는 영향 없음) ──
+    # value: 교육/체험/성장 카드
+    "m-icon-box": _add_class('background:#F5F7FA;display:grid;place-items:center;color:#2F6BB3', "m-icon-box"),
+    "m-body-p":   _add_class('font-size:17px;line-height:1.9;color:#44546A;max-width:56ch', "m-body-p"),
+
+    # about: 드론축구란 상세 리스트(경기 방식/팀 경기/통합 스포츠)
+    "m-about-rows": _add_class('style="margin-top:34px"', "m-about-rows"),
+    "m-diagram":    _add_class('role="img" aria-label="드론축구 경기장 다이어그램', "m-diagram"),
+    "m-arena":      _add_class('border-radius:14px;border:1.5px dashed #C7D3E2', "m-arena"),
+    "m-team-row":   _add_class('display:flex;align-items:center;justify-content:space-between;margin-bottom:24px', "m-team-row"),
+
+    # story: 비전·미션 6개 항목 + 이미지 + 배지줄 + 구분선 + 하단 CTA
+    "m-story-row": _add_class('gap:18px;padding:24px 0', "m-story-row"),
+    "m-vm-img":    _add_class('min-height:clamp(300px,38vw,460px)', "m-vm-img"),
+    "m-badge-vision":  _add_class('letter-spacing:.18em;color:#2F6BB3;margin:0 0 28px', "m-badge-row"),
+    "m-badge-mission": _add_class('letter-spacing:.18em;color:#14335F;margin:0 0 28px', "m-badge-row"),
+    "m-divider-lg": _add_class('gap:16px;margin:clamp(80px,9vw,120px) 0', "m-divider-lg"),
+    "m-cta-card":   _add_class('margin-top:56px;display:flex;align-items:center;justify-content:space-between', "m-cta-card"),
+
+    # programs: 카드 제목 · 대상 라인
+    "m-h3-lg":    _add_class('font-size:24px;font-weight:700;color:#14335F;letter-spacing:-.02em', "m-h3-lg"),
+    "m-tag-line": _add_class('border-top:1px dashed #D5DEE9', "m-tag-line"),
+
+    # 그리드 상단 여백 공통 압축
+    "m-grid-top-56": _add_class("margin-top:56px", "m-grid-top-56"),
+    "m-grid-top-64": _add_class("margin-top:64px", "m-grid-top-64"),
 }
 print("모바일 클래스:", _counts)
 
@@ -497,7 +524,7 @@ MOBILE_CSS = """
   .a-h1{color:#fff!important}
   .a-fill{background:#fff!important;color:#14335F!important;
     box-shadow:0 8px 28px rgba(0,0,0,.24)!important}
-  .a-dash{border-color:#BFCCDD!important}
+  .a-dash{border-color:#BFCCDD!important;padding:16px 20px!important;font-size:13.5px!important}
   #hdrCta{box-shadow:0 4px 16px rgba(0,0,0,.14)!important}
 
   /* 태그라인 — 장식 대시는 빼고 두 줄로 */
@@ -508,11 +535,56 @@ MOBILE_CSS = """
 
   /* 카드 경계를 또렷하게 — 배경만으로는 구분이 안 됨 */
   .m-card{background:#fff!important;border-color:#D6E0EC!important;box-shadow:0 2px 12px rgba(20,51,95,.07)!important}
-  .m-cardimg{height:200px!important}
-  .m-cardbody{padding:24px 22px 28px!important}
-  .m-card2{padding:30px 24px!important;border-color:#D6E0EC!important}
-  .m-card3{padding:26px 22px!important;border-color:#D6E0EC!important}
-  .m-card4{padding:28px 22px!important;background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.2)!important}
+  .m-cardimg{height:150px!important}
+  .m-cardbody{padding:16px 18px 18px!important;gap:6px!important}
+  .m-card2{padding:22px 20px!important;border-color:#D6E0EC!important}
+  .m-card3{padding:20px 18px!important;border-color:#D6E0EC!important}
+  .m-card4{padding:20px 18px!important;background:rgba(255,255,255,.07)!important;border-color:rgba(255,255,255,.2)!important}
+  .m-card3 b{font-size:15.5px!important}
+  .m-card3 small{display:block!important;font-size:13.5px!important;margin-top:6px!important;line-height:1.55!important}
+  .m-card4 p:first-child{margin-bottom:8px!important}
+  .m-card4 p:nth-child(3){margin-top:6px!important;font-size:12.5px!important}
+  .m-card4 p:last-child{margin-top:10px!important}
+
+  /* ── 콘텐츠 밀도 압축 (가치/드론축구란/비전미션/사업 카드) ── */
+  .m-grid-top-56{margin-top:28px!important}
+  .m-grid-top-64{margin-top:32px!important}
+
+  /* value 카드 — 아이콘 축소, 여백 압축 */
+  .m-icon-box{width:38px!important;height:38px!important;border-radius:11px!important;margin-bottom:12px!important}
+  .m-icon-box svg{width:18px!important;height:18px!important}
+  .m-card2 h3{font-size:17px!important;margin-bottom:6px!important}
+  .m-body-p{font-size:14.5px!important;line-height:1.6!important}
+
+  /* about — 드론축구란 상세 리스트 */
+  .m-about-rows>div{padding:14px 0!important;gap:14px!important}
+  .m-about-rows b{font-size:13px!important;width:78px!important}
+  .m-about-rows span{font-size:14px!important;line-height:1.6!important}
+  .m-diagram{padding:20px 18px!important}
+  .m-arena{height:180px!important}
+  .m-diagram p{margin-top:10px!important;font-size:12px!important}
+  .m-team-row{margin-bottom:14px!important}
+  .m-team-row span:nth-child(2){display:none!important}   /* "DRONE SOCCER ARENA" 캡션 — 좁은 화면에서 줄바꿈 유발, 장식 요소라 생략 */
+  .m-team-row span{font-size:11.5px!important;letter-spacing:.08em!important}
+
+  /* story — 비전·미션 이미지·항목·구분선·CTA */
+  .m-vm-img{min-height:170px!important}
+  .m-badge-row{margin-bottom:14px!important}
+  .m-story-row{padding:14px 0!important;gap:10px!important}
+  .m-story-row h3{font-size:16px!important;margin-bottom:4px!important}
+  .m-story-row p{font-size:14px!important;line-height:1.55!important}
+  .m-divider-lg{margin:36px 0!important}
+  .m-cta-card{margin-top:24px!important;padding:18px 20px!important;gap:12px!important}
+  .m-cta-card p{font-size:14.5px!important}
+  .m-cta-card a{font-size:14px!important}
+
+  /* programs — 카드 제목·대상 라인 */
+  .m-h3-lg{font-size:18px!important}
+  .m-tag-line{font-size:13px!important;line-height:1.6!important;padding-top:10px!important}
+
+  /* 파트너 카드 그리드·CTA 위쪽 여백 */
+  #partner [style*="margin-top:52px"]{margin-top:24px!important}
+  #partner .hv17{margin-top:20px!important}
 }
 """
 hover_css = "".join(f".{c}:hover{{{d}}}" for c, d in hover_rules)
