@@ -70,7 +70,18 @@ for uuid, e in manifest.items():
     if not e["mime"].startswith("image/"):
         continue
     role, cap, sizes = ROLES.get(uuid, (uuid[:8], 1200, "100vw"))
-    im = Image.open(io.BytesIO(base64.b64decode(e["data"])))
+    # photos/<역할>.jpg|jpeg|png 가 있으면 번들 사진 대신 그 파일을 씁니다.
+    _ov = None
+    for _ext in (".jpg", ".jpeg", ".png", ".webp"):
+        _c = os.path.join(OUT, "photos", role + _ext)
+        if os.path.exists(_c):
+            _ov = _c
+            break
+    if _ov:
+        im = Image.open(_ov)
+        print(f"  [교체] {role} <- photos/{os.path.basename(_ov)}")
+    else:
+        im = Image.open(io.BytesIO(base64.b64decode(e["data"])))
     im = im.convert("RGB")
     ow, oh = im.size
     widths = sorted({min(ow, cap), max(320, min(ow, cap) // 2)}, reverse=True)

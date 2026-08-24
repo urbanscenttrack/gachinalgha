@@ -28,6 +28,7 @@
 ├── netlify.toml            Netlify 배포 설정
 ├── .github/workflows/pages.yml   GitHub Pages 자동 배포
 ├── brand/                  로고 원본 (06_협회엠블럼 = 현재 사용 중)
+├── photos/                 사진 교체용 (역할 이름으로 넣으면 빌드가 자동 처리)
 ├── tools/                  원본 번들 → 정적 사이트 재생성 스크립트 (배포에 포함되지 않음)
 └── assets/
     ├── css/site.css        전체 스타일 (압축됨)
@@ -252,10 +253,29 @@ python3 tools/subset_fonts.py
 > 스크롤에 반응하는 "바람(비행 궤적)" 효과와 히어로 패럴랙스를 넣었다가 제거했습니다.
 > 필요해지면 git 이력의 `2d73d6e` 커밋에서 되살릴 수 있습니다.
 
-### 이미지 교체
+### 사진 교체
 
-`assets/img/` 안의 파일을 같은 이름으로 바꾸거나, `index.html` 의 `<picture>` 블록에서
-`srcset` 경로를 수정합니다. 각 이미지는 AVIF·WebP 두 형식 × 두 해상도로 준비되어 있습니다.
+`photos/` 폴더에 **역할 이름으로 파일을 넣고 다시 빌드**하면 됩니다.
+크기 조정, AVIF·WebP 변환, 반응형 `srcset` 생성이 자동으로 처리됩니다.
+
+```bash
+cp 새사진.jpg photos/prog-event.jpg
+python3 tools/build.py
+```
+
+| 역할 이름 | 위치 |
+|---|---|
+| `hero` | 첫 화면 배경 |
+| `belief` | "하늘에는 장벽이 없습니다" 섹션 배경 |
+| `prog-edu` / `prog-event` / `prog-tournament` / `prog-coach` | 주요 사업 카드 4장 |
+| `vm-vision` / `vm-mission` | 비전 · 미션 |
+| `g-match` / `g-training` / `g-event` / `g-group` / `g-award` / `g-tournament` / `g-booth` / `g-edu` | 갤러리 8장 |
+
+확장자는 `.jpg` `.jpeg` `.png` `.webp` 를 인식합니다. `photos/` 에 파일이 없으면
+원본 번들에 들어있던 사진을 그대로 씁니다.
+
+> 카드 이미지는 가로로 넓게 잘립니다(`object-fit: cover`, 데스크톱 544×240 / 모바일 327×200).
+> 중요한 피사체는 사진 가운데에 오도록 찍거나 미리 잘라 두세요.
 
 ---
 
