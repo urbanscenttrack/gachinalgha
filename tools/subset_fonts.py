@@ -1,114 +1,71 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""빌드된 사이트의 Pretendard 서브셋 폰트를 '실제 사용 글자'만 남기고 재서브셋."""
-import os, re, sys, html, glob, shutil
+"""페이지에 실제로 쓰인 글자만 남긴 웹폰트를 만듭니다.
+
+HTML의 글자를 고치거나 새 문장을 넣었다면 이 스크립트를 한 번 실행하세요.
+    pip3 install fonttools brotli
+    python3 tools/subset_fonts.py
+
+원본: tools/fonts-src/PretendardVariable.woff2, Anton-Regular.ttf (둘 다 SIL OFL)
+결과: assets/fonts/pretendard.woff2, assets/fonts/anton.woff2
+"""
+import html, os, re
 from fontTools import subset
 from fontTools.ttLib import TTFont
 
-OUT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CSS = os.path.join(OUT, "assets/css/site.css")
-FDIR = os.path.join(OUT, "assets/fonts")
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC = os.path.join(ROOT, "tools", "fonts-src")
+OUT = os.path.join(ROOT, "assets", "fonts")
+PAGES = ["index.html", "404.html", "50x.html"]
 
-# ── 1. 페이지에서 실제로 쓰이는 문자 수집 ──────────────────────────────
-def text_of(path):
+
+def page_text(path):
     s = open(path, encoding="utf-8").read()
     s = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", s, flags=re.S | re.I)
+    s = re.sub(r"<!--.*?-->", " ", s, flags=re.S)
+    # alt·aria-label 등 속성 글자도 화면낭독·대체표시에 쓰이므로 포함
+    attrs = " ".join(re.findall(r'(?:alt|aria-label|title|placeholder)="([^"]*)"', s))
     s = re.sub(r"<[^>]+>", " ", s)
-    return html.unescape(s)
+    return html.unescape(s + " " + attrs)
 
-chars = set()
-for f in ["index.html", "404.html", "50x.html", "site.webmanifest"]:
-    p = os.path.join(OUT, f)
-    if os.path.exists(p):
-        chars |= set(text_of(p))
 
-# 안전 여유분: 영숫자·기본 문장부호·자주 쓰는 기호
-chars |= set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
-chars |= set(" .,·!?%&()[]{}<>/\\|-–—_:;'\"“”‘’…*+=@#~^` ")
-chars |= set("₩$€°㎡①②③④⑤※→←↑↓☎✓★☆")
-chars = {c for c in chars if c.strip() or c == " "}
-print(f"필요 글자 수: {len(chars)}")
-
-# ── 2. @font-face 블록별로 재서브셋 ────────────────────────────────────
-css = open(CSS, encoding="utf-8").read()
-blocks = re.findall(r"@font-face\{[^}]*\}", css)
-print(f"@font-face 블록: {len(blocks)}")
-
-def parse_range(ur):
-    cps = set()
-    for tok in ur.split(","):
-        tok = tok.strip().lower().replace("u+", "")
-        if "-" in tok:
-            a, b = tok.split("-")
-            cps |= set(range(int(a, 16), int(b, 16) + 1))
-        elif "?" in tok:
-            a = int(tok.replace("?", "0"), 16); b = int(tok.replace("?", "f"), 16)
-            cps |= set(range(a, b + 1))
-        else:
-            cps.add(int(tok, 16))
-    return cps
-
-need_cps = {ord(c) for c in chars}
-kept, dropped, before, after = [], 0, 0, 0
-
-for blk in blocks:
-    m_src = re.search(r'url\("([^"]+)"\)', blk)
-    m_ur = re.search(r"unicode-range:([^;}]+)", blk)
-    if not m_src:
-        kept.append(blk); continue
-    rel = m_src.group(1)                      # ../fonts/pretendard-xxx.woff2
-    path = os.path.normpath(os.path.join(os.path.dirname(CSS), rel))
-    if not os.path.exists(path):
-        kept.append(blk); continue
-    blk_cps = parse_range(m_ur.group(1)) if m_ur else None
-    want = need_cps & blk_cps if blk_cps else need_cps
-    before += os.path.getsize(path)
-    if not want:
-        os.remove(path); dropped += 1; continue
-
-    font = TTFont(path)
-    have = set()
-    for t in font["cmap"].tables:
-        have |= set(t.cmap.keys())
-    want &= have
-    if not want:
-        font.close(); os.remove(path); dropped += 1; continue
-
+def build(src, dst, chars, features):
+    font = TTFont(src)
     opts = subset.Options()
     opts.flavor = "woff2"
-    opts.desubroutinize = False
-    opts.retain_gids = False
-    opts.layout_features = ["kern", "liga", "clig", "calt", "ccmp", "locl", "mark", "mkmk", "rlig"]
-    opts.name_IDs = ["*"]; opts.name_legacy = False; opts.name_languages = ["*"]
+    opts.layout_features = features
+    opts.name_IDs = ["*"]
     opts.notdef_outline = True
-    opts.drop_tables = ["FFTM", "PfEd", "TeX", "BASE", "JSTF", "DSIG"]
-    opts.recalc_bounds = True
-    s = subset.Subsetter(options=opts)
-    s.populate(unicodes=want)
-    s.subset(font)
+    opts.drop_tables += ["DSIG"]
+    sub = subset.Subsetter(options=opts)
+    sub.populate(unicodes={ord(c) for c in chars})
+    sub.subset(font)
     font.flavor = "woff2"
-    font.save(path)
-    font.close()
+    font.save(dst)
+    return os.path.getsize(dst)
 
-    # 새 unicode-range를 실제 남은 글자로 좁힘
-    ranges = []
-    for cp in sorted(want):
-        if ranges and cp == ranges[-1][1] + 1:
-            ranges[-1][1] = cp
-        else:
-            ranges.append([cp, cp])
-    ur = ",".join(f"U+{a:x}" if a == b else f"U+{a:x}-{b:x}" for a, b in ranges)
-    blk = re.sub(r"unicode-range:[^;}]+", "unicode-range:" + ur, blk)
-    after += os.path.getsize(path)
-    kept.append(blk)
 
-# ── 3. CSS 재작성 ──────────────────────────────────────────────────────
-new_css = css
-for blk in blocks:
-    new_css = new_css.replace(blk, "", 1)
-new_css = "".join(kept) + new_css
-open(CSS, "w", encoding="utf-8").write(new_css)
+def main():
+    os.makedirs(OUT, exist_ok=True)
+    text = ""
+    for p in PAGES:
+        fp = os.path.join(ROOT, p)
+        if os.path.exists(fp):
+            text += page_text(fp)
 
-print(f"유지 {len(kept)}개 / 제거 {dropped}개")
-print(f"폰트 용량 {before/1024:.0f}KB -> {after/1024:.0f}KB")
-print(f"site.css {len(css)/1024:.1f}KB -> {len(new_css)/1024:.1f}KB")
+    # 여유분: 영숫자·문장부호 전체 (문구 수정 시 깨짐 방지)
+    safety = "".join(chr(c) for c in range(0x20, 0x7F)) + "·—–…“”‘’→←↑↓↗●○※©"
+    kor = set(text) | set(safety)
+    kor = {c for c in kor if c.isprintable()}
+
+    n1 = build(os.path.join(SRC, "PretendardVariable.woff2"), os.path.join(OUT, "pretendard.woff2"),
+               kor, ["kern", "liga", "calt", "ccmp", "locl", "mark", "mkmk", "tnum", "case"])
+    latin = "".join(chr(c) for c in range(0x20, 0x7F))
+    n2 = build(os.path.join(SRC, "Anton-Regular.ttf"), os.path.join(OUT, "anton.woff2"), latin, ["kern", "liga"])
+
+    print(f"Pretendard: {len(kor)}자 → {n1/1024:.0f}KB")
+    print(f"Anton: 라틴 → {n2/1024:.0f}KB")
+
+
+if __name__ == "__main__":
+    main()
