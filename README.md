@@ -80,7 +80,7 @@ python3 tools/image.py 새사진.jpg prog-edu 1200
 
 `assets/video/` 의 세 파일을 같은 이름으로 바꿉니다.
 
-- `match-loop.mp4` — 자동재생 미리보기. **12초 안팎, 소리 없음, 1~2MB** 로 유지하세요
+- `match-loop.mp4` / `match-loop-m.mp4` — 자동재생 미리보기 (PC 1176px·약 4MB / 모바일 960px·약 3MB). **12초 안팎, 소리 없음**
 - `match-full.mp4` — 첫 화면 영상의 "전체 영상" 버튼으로 재생 (GitHub 한도 100MB 미만)
 - `match-poster.webp/.avif` — 영상 로딩 전 보이는 정지 화면
 
