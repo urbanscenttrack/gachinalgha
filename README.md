@@ -20,7 +20,7 @@
 ├── assets/
 │   ├── css/site.css         디자인 전체 (색·글자·간격은 맨 위 :root 변수에 모여 있음)
 │   ├── js/site.js           메뉴·스크롤 효과·영상 재생·방문 통계 이벤트
-│   ├── fonts/               Pretendard·Anton — 페이지에 쓰인 글자만 담은 경량 폰트
+│   ├── fonts/               Pretendard — 페이지에 쓰인 글자만 담은 경량 폰트
 │   ├── img/                 사진 (AVIF·WebP × 두 크기)
 │   └── video/               경기 영상 (미리보기 12초 / 전체 3분 46초 / 포스터)
 ├── photos/                  사진 원본 보관
@@ -38,15 +38,15 @@
 
 | 항목 | 값 | 비고 |
 |---|---|---|
-| 바탕 | `#FFFFFF` / `#F3F4F6` | 흰색과 옅은 회색을 섹션마다 번갈아 |
-| 글자 | `#0E1014` / `#4A505B` | 제목 / 본문 |
-| 보조 문장 | `#7E848F` | **큰 글씨(24px 이상)에만** 사용 — 작은 글씨엔 대비 부족 |
-| 강조 | `#2F6BB3` | 브랜드 블루. 수치 카드 1개와 작은 점에만 씀 |
-| 본문 서체 | Pretendard | |
-| 큰 영문 | Anton | 히어로 `FLY TOGETHER`, 푸터 `GACHINALJA` |
+| 바탕 | `#FFFFFF` / `#F4F6F9` | 흰색과 옅은 회색을 섹션마다 번갈아 |
+| 글자 | `#111418` / `#4A505B` / `#6B717C` | 제목 / 본문 / 보조 |
+| 주 색 | `#12264A` 네이비 | 버튼·상단 바·문의 영역 (푸터 `#0C1A33`) |
+| 강조 | `#2F6BB3` | 브랜드 블루. 섹션 머리말·번호 등 작은 곳에만 |
+| 서체 | Pretendard | 한 가지 서체로 굵기만 달리 씀 |
+| 모서리 | 20 / 14 / 10px | 카드 / 아이콘 / 버튼 |
 
-색을 추가하지 않는 것이 원칙입니다. 새 요소를 만들 때도 흑백과 간격·크기로 위계를 잡고,
-강조가 꼭 필요할 때만 브랜드 블루를 씁니다.
+공공기관·협회 홈페이지처럼 차분하고 신뢰감 있게 가는 것이 원칙입니다. 색을 더하지 말고
+네이비·회색과 간격·굵기로 위계를 잡으세요.
 
 ## 3. 내용 수정하기
 
@@ -72,7 +72,7 @@ python3 tools/image.py 새사진.jpg prog-edu 1200
 
 | 이름 | 위치 |
 |---|---|
-| `g-tournament` | 드론축구란 — 경기장·점수판 |
+| `g-tournament` | 드론축구 — 경기장·점수판 |
 | `prog-edu` / `prog-event` / `prog-tournament` / `prog-coach` | 주요 사업 4개 |
 | `g-group` / `g-training` / `g-booth` | 현장의 순간들 |
 
@@ -81,7 +81,7 @@ python3 tools/image.py 새사진.jpg prog-edu 1200
 `assets/video/` 의 세 파일을 같은 이름으로 바꿉니다.
 
 - `match-loop.mp4` — 자동재생 미리보기. **12초 안팎, 소리 없음, 1~2MB** 로 유지하세요
-- `match-full.mp4` — "전체 영상 보기" 버튼으로 재생 (GitHub 한도 100MB 미만)
+- `match-full.mp4` — 첫 화면 영상의 "전체 영상" 버튼으로 재생 (GitHub 한도 100MB 미만)
 - `match-poster.webp/.avif` — 영상 로딩 전 보이는 정지 화면
 
 전체 영상을 유튜브에 올리시면 사이트 용량 부담 없이 더 좋습니다. 링크 주시면 연결해 드립니다.
@@ -114,11 +114,10 @@ GA4 가 연결되면 아래 이벤트가 자동 수집됩니다.
 |---|---|
 | `contact_click` | 전화·이메일 클릭 |
 | `outbound_click` | 블로그 등 외부 링크 |
-| `program_open` | 주요 사업 항목 펼침 |
 | `video_play` | 전체 영상 재생 |
 | `nav_click` / `scroll_depth` | 메뉴 이동 / 스크롤 25·50·75·90% |
 
 ## 6. 라이선스
 
 - 콘텐츠·사진·영상: © 대한장애인드론축구협회. 무단 사용 금지.
-- 서체: [Pretendard](https://github.com/orioncactus/pretendard), [Anton](https://fonts.google.com/specimen/Anton) — SIL Open Font License 1.1
+- 서체: [Pretendard](https://github.com/orioncactus/pretendard) — SIL Open Font License 1.1

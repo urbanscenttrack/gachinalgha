@@ -6,8 +6,8 @@ HTML의 글자를 고치거나 새 문장을 넣었다면 이 스크립트를 �
     pip3 install fonttools brotli
     python3 tools/subset_fonts.py
 
-원본: tools/fonts-src/PretendardVariable.woff2, Anton-Regular.ttf (둘 다 SIL OFL)
-결과: assets/fonts/pretendard.woff2, assets/fonts/anton.woff2
+원본: tools/fonts-src/PretendardVariable.woff2 (SIL OFL)
+결과: assets/fonts/pretendard.woff2
 """
 import html, os, re
 from fontTools import subset
@@ -60,11 +60,8 @@ def main():
 
     n1 = build(os.path.join(SRC, "PretendardVariable.woff2"), os.path.join(OUT, "pretendard.woff2"),
                kor, ["kern", "liga", "calt", "ccmp", "locl", "mark", "mkmk", "tnum", "case"])
-    latin = "".join(chr(c) for c in range(0x20, 0x7F))
-    n2 = build(os.path.join(SRC, "Anton-Regular.ttf"), os.path.join(OUT, "anton.woff2"), latin, ["kern", "liga"])
 
     print(f"Pretendard: {len(kor)}자 → {n1/1024:.0f}KB")
-    print(f"Anton: 라틴 → {n2/1024:.0f}KB")
 
 
 if __name__ == "__main__":

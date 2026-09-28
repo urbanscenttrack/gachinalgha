@@ -5,7 +5,7 @@
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
 
-  /* ── 헤더: 스크롤하면 흰 배경 ── */
+  /* ── 헤더: 스크롤하면 그림자 ── */
   var hdr = $('#hdr');
   function onScroll() { hdr.classList.toggle('is-scrolled', window.scrollY > 24); }
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -36,7 +36,7 @@
         });
       });
     }, { rootMargin: '-45% 0px -50% 0px' });
-    ['about', 'sport', 'programs', 'film', 'contact'].forEach(function (id) {
+    ['about', 'sport', 'programs', 'vision', 'moments', 'contact'].forEach(function (id) {
       var el = document.getElementById(id); if (el) secIo.observe(el);
     });
   }
@@ -67,22 +67,8 @@
     window.addEventListener('beforeprint', revealAll);
   }
 
-  /* ── 사업 아코디언: 하나만 열리게 (name 속성 미지원 브라우저 대비) ── */
-  var progs = $$('.prog');
-  progs.forEach(function (d) {
-    d.addEventListener('toggle', function () {
-      if (!d.open) return;
-      progs.forEach(function (o) { if (o !== d) o.open = false; });
-      track('program_open', { program: d.querySelector('h3').textContent });
-    });
-  });
-
-  /* ── 히어로 드론볼: 동작 줄이기 설정 시 회전 멈춤 ── */
-  var ball = $('#droneBall');
-  if (reduce && ball && ball.pauseAnimations) ball.pauseAnimations();
-
-  /* ── 경기 영상: 화면에 보이면 미리보기 자동재생, 버튼으로 전체 영상 ── */
-  var box = $('#film-box'), vid = $('#filmVideo'), play = $('#filmPlay');
+  /* ── 히어로 경기 영상: 화면에 보이면 미리보기 자동재생, 버튼으로 전체 영상 ── */
+  var box = $('#film'), vid = $('#filmVideo'), play = $('#filmPlay');
   var full = false;
   if (vid && 'IntersectionObserver' in window && !reduce) {
     new IntersectionObserver(function (entries) {
