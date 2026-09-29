@@ -114,7 +114,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   animation:pulse 2.4s ease-in-out infinite}
 @keyframes pulse{50%{box-shadow:0 0 0 7px rgba(47,107,179,.05)}}
 
-.hero-visual{position:relative;width:100%;display:flex;justify-content:center;margin-top:-4px;padding-bottom:calc(var(--fs)*.34);--fs:clamp(92px,16vw,240px)}
+.hero-visual{position:relative;width:100%;display:flex;justify-content:center;margin-top:-4px;padding-bottom:calc(var(--fs)*.34);--fs:clamp(80px,13.5vw,200px)}
 .display{font-family:"Anton",Impact,"Arial Narrow",sans-serif;font-size:var(--fs);line-height:.9;letter-spacing:.005em;
   display:flex;flex-direction:column;align-items:center;user-select:none}
 .display span{display:block;background:linear-gradient(180deg,#59606B 0%,#8A909A 45%,#DADDE3 100%);
@@ -155,7 +155,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 /* ── 경기 영상: 스크롤하면 눕혀진 화면이 세워짐 ── */
 .film{padding:var(--sec) 0;background:linear-gradient(180deg,#E9EDF3 0%,#fff 38%);--fp:1}
-.film-stage{perspective:1400px}
+.film-stage{perspective:1400px;max-width:1000px;margin:0 auto}
 .hero-media{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#0B0F16;aspect-ratio:16/9;
   transform-origin:50% 100%;
   transform:rotateX(calc((1 - var(--fp))*22deg)) scale(calc(.88 + var(--fp)*.12));
@@ -328,7 +328,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   .brand-txt small{font-size:10px}
   .hero{padding-top:20px}
   .hero-chip{align-self:center;font-size:12.5px;padding:8px 14px}
-  .hero-visual{margin-top:14px;--fs:clamp(64px,24vw,130px)}
+  .hero-visual{margin-top:14px;--fs:clamp(58px,21vw,112px)}
   .ball-wrap{width:calc(var(--fs)*2.05)}
   .hero-cta{width:100%}
   .hero-cta .btn{flex:1}
