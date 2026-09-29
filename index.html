@@ -44,6 +44,7 @@
 <link rel="manifest" href="site.webmanifest">
 
 <link rel="preload" href="assets/fonts/pretendard.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/anton.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="assets/css/site.css">
 
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SportsOrganization","@id":"https://gachinalja.co.kr/#organization","name":"대한장애인드론축구협회","alternateName":["가치날자","Korea Para Drone Soccer Association","KPDSA"],"url":"https://gachinalja.co.kr/","logo":"https://gachinalja.co.kr/icon-512.png","image":"https://gachinalja.co.kr/og-image.jpg","description":"대한장애인드론축구협회(가치날자)는 드론축구로 장애인·비장애인이 함께하는 통합 스포츠 문화를 만듭니다. 교육·체험·대회·지도자 양성 운영.","sport":"드론축구","areaServed":{"@type":"Country","name":"대한민국"},"address":{"@type":"PostalAddress","streetAddress":"효원로 1, 604호-17","addressLocality":"수원시 팔달구","addressRegion":"경기도","addressCountry":"KR"},"email":"kpdsa2024@gmail.com","telephone":"+82-10-8877-8936","founder":{"@type":"Person","name":"박성춘"},"contactPoint":[{"@type":"ContactPoint","telephone":"+82-10-8877-8936","email":"kpdsa2024@gmail.com","contactType":"customer service","availableLanguage":["Korean"],"areaServed":"KR"}],"sameAs":["https://blog.naver.com/droneboy123"]}</script>
@@ -89,6 +90,7 @@ gtag('config','G-XXXXXXXXXX',{anonymize_ip:true});
       <a href="#sport">드론축구</a>
       <a href="#programs">주요사업</a>
       <a href="#vision">비전·미션</a>
+      <a href="#film">경기영상</a>
       <a href="#moments">활동</a>
       <a href="#contact">문의</a>
     </nav>
@@ -111,40 +113,69 @@ gtag('config','G-XXXXXXXXXX',{anonymize_ip:true});
 
 <!-- ════════════════ 히어로 ════════════════ -->
 <section class="hero" id="top">
-  <div class="wrap hero-grid">
-    <div class="hero-copy">
-      <p class="eyebrow">Korea Para Drone Soccer Association</p>
-      <h1>같이 날고, 같이 웃고,<br>같이 성장합니다.</h1>
-      <p class="hero-lead">대한장애인드론축구협회는 드론축구로 장애인과 비장애인이 <br>한 코트에서 함께 뛰는 통합 스포츠 문화를 만듭니다.</p>
-      <div class="hero-cta">
-        <a class="btn btn-navy" href="#contact">교육·체험 신청</a>
-        <a class="btn btn-line" href="#about">협회 소개</a>
+  <div class="hero-floor" aria-hidden="true"></div>
+  <div class="wrap hero-in">
+    <p class="hero-chip drop" style="--i:0"><span class="dot" aria-hidden="true"></span>2025 제1회 장애인 드론축구대회 개최</p>
+
+    <div class="hero-visual" aria-hidden="true">
+      <p class="display"><span class="d1 drop" style="--i:1">FLY</span><span class="d2 drop" style="--i:2">TOGETHER</span></p>
+      <div class="ball-wrap drop" style="--i:3">
+        <canvas class="ball" id="ball3d" width="600" height="600"></canvas>
+        <noscript><img class="ball" src="assets/img/emblem-256.png" alt=""></noscript>
       </div>
-      <dl class="facts">
-        <div><dt>2025</dt><dd>제1회 장애인<br>드론축구대회 개최</dd></div>
-        <div><dt>4</dt><dd>교육 · 체험 · 대회<br>· 지도자 양성</dd></div>
-        <div><dt>5</dt><dd>함께하는<br>참여 대상 그룹</dd></div>
-      </dl>
+      <span class="ball-shadow"></span>
     </div>
 
-    <figure class="hero-media" id="film">
-      <video class="film-video" id="filmVideo" muted loop playsinline preload="metadata"
-             poster="assets/video/match-poster.webp" aria-label="제1회 장애인 드론축구대회 경기 영상">
-        <source src="assets/video/match-loop-m.mp4" type="video/mp4" media="(max-width: 760px)">
-        <source src="assets/video/match-loop.mp4" type="video/mp4">
-      </video>
-      <span class="film-badge"><span class="live" aria-hidden="true"></span>경기 실황</span>
-      <figcaption class="film-cap">
-        <span>
-          <b>제1회 장애인 드론축구대회</b>
-          <small>대한장애인드론축구협회장배 · 2025.11.29(토) · 호매실장애인종합복지관</small>
-        </span>
-        <button class="film-play" id="filmPlay" type="button">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>
-          전체 영상 <span>3:46</span>
-        </button>
-      </figcaption>
-    </figure>
+    <h1 class="drop" style="--i:4">같이 날고, 같이 웃고,<br>같이 성장합니다.</h1>
+    <p class="hero-lead drop" style="--i:5">드론축구로 장애인과 비장애인이 한 코트에서 함께 뜁니다.</p>
+    <div class="hero-cta drop" style="--i:6">
+      <a class="btn btn-navy" href="#contact">교육·체험 신청</a>
+      <a class="btn btn-line" href="#film">경기 영상 보기</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <dl class="facts drop" style="--i:7">
+      <div><dt><span data-count="2025" data-from="2015">2025</span></dt><dd>제1회 장애인 드론축구대회 개최</dd></div>
+      <div><dt><span data-count="4">4</span><small>개 분야</small></dt><dd>교육 · 체험 · 대회 · 지도자 양성</dd></div>
+      <div><dt><span data-count="5">5</span><small>개 그룹</small></dt><dd>장애인 · 느린학습자 · 시니어 · 다문화 청소년 · 비장애인</dd></div>
+    </dl>
+  </div>
+
+  <nav class="quick" aria-label="빠른 연락">
+    <a href="https://blog.naver.com/droneboy123" target="_blank" rel="noopener noreferrer" aria-label="네이버 블로그"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4.4l5.2 7.6V4H19v16h-4.4l-5.2-7.6V20H5z" fill="currentColor"/></svg></a>
+    <a href="tel:010-8877-8936" aria-label="전화 010-8877-8936"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3h2.9l1.5 4.2-2 1.4a11 11 0 006.4 6.4l1.4-2 4.2 1.5v2.9a2 2 0 01-2.2 2A17 17 0 014.6 5.2 2 2 0 016.6 3z"/></svg></a>
+    <a href="mailto:kpdsa2024@gmail.com" aria-label="이메일 보내기"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M4 7l8 6 8-6"/></svg></a>
+  </nav>
+</section>
+
+<!-- ════════════════ 경기 영상 (스크롤하면 세워지는 3D 화면) ════════════════ -->
+<section class="film" id="film">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div>
+        <p class="kicker">MATCH FILM</p>
+        <h2 class="h2">제1회 장애인 드론축구대회</h2>
+      </div>
+      <p class="sec-note">대한장애인드론축구협회장배 · 2025.11.29(토)<br>호매실장애인종합복지관</p>
+    </div>
+    <div class="film-stage">
+      <figure class="hero-media" id="filmBox">
+        <video class="film-video" id="filmVideo" muted loop playsinline preload="metadata"
+               poster="assets/video/match-poster.webp" aria-label="제1회 장애인 드론축구대회 경기 영상">
+          <source src="assets/video/match-loop-m.mp4" type="video/mp4" media="(max-width: 760px)">
+          <source src="assets/video/match-loop.mp4" type="video/mp4">
+        </video>
+        <span class="film-badge"><span class="live" aria-hidden="true"></span>경기 실황</span>
+        <figcaption class="film-cap">
+          <span><b>선수·심판·관중이 함께한 첫 공식 대회</b><small>장애인과 비장애인이 한 코트에서 겨룬 현장</small></span>
+          <button class="film-play" id="filmPlay" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>
+            전체 영상 <span>3:46</span>
+          </button>
+        </figcaption>
+      </figure>
+    </div>
   </div>
 </section>
 

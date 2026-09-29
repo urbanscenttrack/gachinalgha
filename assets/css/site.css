@@ -96,23 +96,70 @@ button{font:inherit;color:inherit;cursor:pointer}
 .mnav a{display:block;padding:14px 4px;font-size:17px;font-weight:600;border-bottom:1px solid var(--line)}
 .mnav .mnav-cta{margin-top:16px;border:0;background:var(--navy);color:#fff;text-align:center;border-radius:var(--r-sm)}
 
-/* ── 히어로 ── */
-.hero{padding:clamp(48px,6vw,88px) 0 clamp(64px,7vw,104px);
-  background:linear-gradient(180deg,var(--mist) 0%,#fff 100%)}
-.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:clamp(32px,5vw,72px);align-items:center}
-.hero .eyebrow{margin-bottom:20px}
-.hero h1{font-size:clamp(34px,4.4vw,58px);line-height:1.22;font-weight:800;letter-spacing:-.045em}
-.hero-lead{margin-top:22px;font-size:clamp(16px,1.35vw,19px);line-height:1.8;color:var(--ink-2);max-width:30em}
-.hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
-.facts{display:grid;grid-template-columns:repeat(3,1fr);margin-top:44px;border-top:1px solid var(--line);padding-top:24px}
-.facts div{padding-right:16px}
-.facts div+div{padding-left:20px;border-left:1px solid var(--line)}
-.facts dt{font-size:clamp(26px,2.6vw,34px);font-weight:800;letter-spacing:-.04em;color:var(--navy);line-height:1.1;
-  font-variant-numeric:tabular-nums}
-.facts dd{margin-top:8px;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+/* ── 히어로 (3D 드론볼 · 원근 바닥 · 순차 등장) ── */
+@font-face{font-family:"Anton";src:url("../fonts/anton.woff2") format("woff2");font-display:swap}
+.hero{position:relative;overflow:hidden;padding:clamp(28px,4vw,48px) 0 clamp(56px,6vw,88px);
+  background:radial-gradient(120% 80% at 50% 0%,#FFFFFF 0%,var(--mist) 55%,#E9EDF3 100%);--p:0}
+.hero-floor{position:absolute;left:-25%;right:-25%;bottom:-8%;height:62%;pointer-events:none;
+  background:
+    linear-gradient(to right,rgba(18,38,74,.09) 1px,transparent 1px) 0 0/64px 64px,
+    linear-gradient(to bottom,rgba(18,38,74,.09) 1px,transparent 1px) 0 0/64px 64px;
+  transform:perspective(560px) rotateX(64deg);transform-origin:50% 0;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 35%,#000 60%,transparent 100%);
+          mask-image:linear-gradient(to bottom,transparent 0%,#000 35%,#000 60%,transparent 100%)}
+.hero-in{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
+.hero-chip{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:999px;
+  background:#fff;font-size:13.5px;font-weight:650;color:var(--ink);box-shadow:0 6px 20px -10px rgba(18,38,74,.35)}
+.hero-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(47,107,179,.18);
+  animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(47,107,179,.05)}}
 
-.hero-media{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#0B0F16;aspect-ratio:16/10;
-  box-shadow:0 30px 60px -30px rgba(18,38,74,.45)}
+.hero-visual{position:relative;width:100%;display:flex;justify-content:center;margin-top:-4px;padding-bottom:calc(var(--fs)*.34);--fs:clamp(92px,16vw,240px)}
+.display{font-family:"Anton",Impact,"Arial Narrow",sans-serif;font-size:var(--fs);line-height:.9;letter-spacing:.005em;
+  display:flex;flex-direction:column;align-items:center;user-select:none}
+.display span{display:block;background:linear-gradient(180deg,#59606B 0%,#8A909A 45%,#DADDE3 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;will-change:transform}
+.display .d1{transform:translateX(calc(var(--p)*-9vw))}
+.display .d2{transform:translateX(calc(var(--p)*9vw))}
+.ball-wrap{position:absolute;left:50%;top:50%;width:calc(var(--fs)*1.95);aspect-ratio:1;
+  transform:translate(-50%,-56%) scale(calc(1 + var(--p)*.18));pointer-events:auto}
+.ball{width:100%;height:100%;display:block;cursor:grab}
+.ball-shadow{position:absolute;left:50%;bottom:calc(var(--fs)*.02);width:calc(var(--fs)*1.05);height:calc(var(--fs)*.12);
+  transform:translateX(-50%) scale(var(--sh,1));border-radius:50%;
+  background:radial-gradient(closest-side,rgba(17,20,24,.28),rgba(17,20,24,0))}
+.hero h1{margin-top:8px;font-size:clamp(32px,3.6vw,50px);line-height:1.25;font-weight:800;letter-spacing:-.045em}
+.hero-lead{margin-top:16px;text-wrap:balance;font-size:clamp(16px,1.3vw,18px);color:var(--ink-2)}
+.hero-cta{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:28px}
+
+.facts{position:relative;display:grid;grid-template-columns:repeat(3,1fr);margin-top:clamp(40px,5vw,64px);
+  background:rgba(255,255,255,.78);border:1px solid rgba(255,255,255,.9);border-radius:var(--r-lg);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 24px 50px -28px rgba(18,38,74,.35)}
+.facts div{padding:24px 28px}
+.facts div+div{border-left:1px solid var(--line)}
+.facts dt{font-size:clamp(28px,2.8vw,38px);font-weight:800;letter-spacing:-.04em;color:var(--navy);line-height:1.1;
+  font-variant-numeric:tabular-nums}
+.facts dt small{font-size:15px;font-weight:700;margin-left:4px;letter-spacing:-.02em;color:var(--ink-2)}
+.facts dd{margin-top:6px;font-size:14px;line-height:1.55;color:var(--ink-2)}
+
+.quick{position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:40;display:flex;flex-direction:column;gap:10px}
+.quick a{width:46px;height:46px;border-radius:50%;background:#fff;color:var(--ink);display:grid;place-items:center;
+  box-shadow:0 8px 22px -10px rgba(18,38,74,.45);transition:transform .2s,background .2s,color .2s}
+.quick a:hover{transform:translateY(-2px);background:var(--navy);color:#fff}
+.quick svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.quick a:first-child svg{stroke:none}
+
+/* 순차 등장: 위에서 한 칸씩 내려오며 자리 잡음 */
+.drop{animation:drop .9s cubic-bezier(.2,.75,.2,1) both;animation-delay:calc(var(--i,0)*110ms + 80ms)}
+@keyframes drop{from{opacity:0;translate:0 -28px}to{opacity:1;translate:0 0}}
+
+/* ── 경기 영상: 스크롤하면 눕혀진 화면이 세워짐 ── */
+.film{padding:var(--sec) 0;background:linear-gradient(180deg,#E9EDF3 0%,#fff 38%);--fp:1}
+.film-stage{perspective:1400px}
+.hero-media{position:relative;border-radius:var(--r-lg);overflow:hidden;background:#0B0F16;aspect-ratio:16/9;
+  transform-origin:50% 100%;
+  transform:rotateX(calc((1 - var(--fp))*22deg)) scale(calc(.88 + var(--fp)*.12));
+  box-shadow:0 calc(20px + var(--fp)*20px) 70px -30px rgba(18,38,74,.55)}
 .film-video{width:100%;height:100%;object-fit:cover}
 .film-badge{position:absolute;top:16px;left:16px;display:inline-flex;align-items:center;gap:8px;padding:6px 12px;
   border-radius:6px;background:rgba(10,14,22,.66);color:#fff;font-size:12.5px;font-weight:650;letter-spacing:.02em;
@@ -128,6 +175,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .film-play span{color:var(--ink-3);font-weight:500;font-variant-numeric:tabular-nums}
 .film-play:hover{background:#E8EDF5}
 .hero-media.is-full .film-cap,.hero-media.is-full .film-badge{display:none}
+.hero-media.is-full{transform:none}
 
 /* ── 섹션 공통 ── */
 .sec{padding:var(--sec) 0}
@@ -237,6 +285,13 @@ button{font:inherit;color:inherit;cursor:pointer}
 .to-top:hover{background:rgba(255,255,255,.08)}
 .to-top svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
+/* ── 입체 카드: 마우스 방향으로 살짝 기울어짐 ── */
+.tilt{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,0px));
+  transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.tilt.is-tilting{transition:transform .08s linear,box-shadow .35s;--ty:-4px;box-shadow:0 26px 50px -26px rgba(18,38,74,.45)}
+.card:hover{transform:none}
+.card.tilt:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,0px))}
+
 /* ── 스크롤 등장 ── */
 .reveal.pre{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
 .reveal.pre.is-in{opacity:1;transform:none}
@@ -252,10 +307,9 @@ button{font:inherit;color:inherit;cursor:pointer}
   .ftr-grid{grid-template-columns:1fr 1fr}
 }
 @media (max-width:1024px){
+  .quick{right:12px}
   .nav,.hdr-cta{display:none}
   .menu-btn{display:flex}
-  .hero-grid{grid-template-columns:1fr}
-  .hero-copy{max-width:680px}
   .about,.sport,.contact{grid-template-columns:1fr}
   .vm{grid-template-columns:1fr 1fr}
   .vm-intro{grid-column:1/-1;max-width:640px}
@@ -272,15 +326,21 @@ button{font:inherit;color:inherit;cursor:pointer}
   .brand img{width:34px;height:34px}
   .brand-txt b{font-size:15px}
   .brand-txt small{font-size:10px}
-  .hero{padding-top:36px}
+  .hero{padding-top:20px}
+  .hero-chip{align-self:center;font-size:12.5px;padding:8px 14px}
+  .hero-visual{margin-top:14px;--fs:clamp(64px,24vw,130px)}
+  .ball-wrap{width:calc(var(--fs)*2.05)}
+  .hero-cta{width:100%}
   .hero-cta .btn{flex:1}
-  .facts{margin-top:32px;padding-top:20px}
-  .facts div+div{padding-left:12px}
-  .facts div{padding-right:8px}
-  .facts dd{font-size:12.5px}
+  .facts{grid-template-columns:1fr;margin-top:36px}
+  .facts div{padding:16px 20px;display:flex;align-items:center;gap:16px}
+  .facts div+div{border-left:0;border-top:1px solid var(--line)}
+  .facts dt{flex-shrink:0;min-width:92px;font-size:26px}
+  .facts dt small{font-size:13px}
+  .facts dd{margin:0;font-size:13.5px;text-align:left}
+  .quick{display:none}
   .hero-media{aspect-ratio:16/11;border-radius:var(--r-md)}
-  .hero .eyebrow{font-size:11.5px;letter-spacing:.08em}
-  .hero-lead br,.about .h2 br{display:none}
+  .about .h2 br,.sec-note br{display:none}
   .film-cap{align-items:center;gap:10px;padding:36px 14px 14px}
   .film-cap b{font-size:14px}
   .film-cap small{display:none}
@@ -305,9 +365,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
+  .hero-media{transform:none}
+  .ball-wrap{transform:translate(-50%,-56%)}
+  .display span{transform:none}
   *,*::before,*::after{transition:none!important;animation:none!important}
 }
 @media print{
-  .util,.hdr,.hero-media,.to-top{display:none}
+  .util,.hdr,.hero-media,.to-top,.quick,.hero-floor,.ball-wrap{display:none}
   .sec-navy{background:#fff;color:#000}
 }
