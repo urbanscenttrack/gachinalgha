@@ -71,7 +71,7 @@
   var heroEl = $('.hero'), cv = $('#ball3d');
   if (cv && cv.getContext) (function () {
     var ctx = cv.getContext('2d'), W = 0, dpr = 1, visible = true, raf = 0;
-    var yaw = 0.6, pitch = 0.42, drift = 0, mx = 0, my = 0, spin = 0, t0 = performance.now();
+    var yaw = 0.6, pitch = 0.42, drift = 0, mx = 0, my = 0, spin = 0, t0 = performance.now(), fx = 0, roll = 0;
     function size() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       W = cv.clientWidth; cv.width = cv.height = Math.round(W * dpr);
@@ -100,7 +100,20 @@
       if (!reduce) { drift += 0.0035; spin = t * 22; }
       yaw += ((0.6 + drift + mx * 0.5) - yaw) * 0.08;
       pitch += ((0.42 + my * 0.25) - pitch) * 0.08;
+      // 비행: 14초 주기로 좌우를 몇 번 오가다가 가운데로 돌아와 제자리 비행
+      var nx = 0, ft = t - 1.2;
+      if (!reduce && ft > 0) {
+        var u = (ft % 14) / 7; // 0~1 비행, 1~2 제자리
+        if (u < 1) {
+          var room = (heroEl.clientWidth - W) / 2 - 8, amp = Math.max(0, Math.min(W * 0.85, room));
+          nx = amp * Math.sin(Math.PI * 2 * u * 1.5) * Math.sin(Math.PI * u);
+        }
+      }
+      var vx = nx - fx; fx = nx;
+      roll += (Math.max(-0.35, Math.min(0.35, vx * 0.06)) - roll) * 0.1; // 움직이는 방향으로 기울기
+      heroEl.style.setProperty('--bx', fx.toFixed(1) + 'px');
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, W);
+      ctx.translate(W / 2, W / 2); ctx.rotate(roll); ctx.translate(-W / 2, -W / 2);
       ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       var cx = W / 2, cy = W / 2 + bob;
       // 유리 공 (반투명 구, 좌상단 하이라이트)

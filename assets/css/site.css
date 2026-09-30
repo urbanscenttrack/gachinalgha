@@ -116,10 +116,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .display .d1{transform:translateX(calc(var(--p)*-9vw))}
 .display .d2{transform:translateX(calc(var(--p)*9vw))}
 .ball-wrap{position:absolute;left:50%;top:50%;width:calc(var(--fs)*1.95);aspect-ratio:1;
-  transform:translate(-50%,-56%) scale(calc(1 + var(--p)*.18));pointer-events:auto}
+  transform:translate(calc(-50% + var(--bx,0px)),-56%) scale(calc(1 + var(--p)*.18));pointer-events:auto}
 .ball{width:100%;height:100%;display:block;cursor:grab}
 .ball-shadow{position:absolute;left:50%;bottom:calc(var(--fs)*.02);width:calc(var(--fs)*1.05);height:calc(var(--fs)*.12);
-  transform:translateX(-50%) scale(var(--sh,1));border-radius:50%;
+  transform:translateX(calc(-50% + var(--bx,0px))) scale(var(--sh,1));border-radius:50%;
   background:radial-gradient(closest-side,rgba(17,20,24,.28),rgba(17,20,24,0))}
 .hero h1{margin-top:8px;font-size:clamp(32px,3.6vw,50px);line-height:1.25;font-weight:800;letter-spacing:-.045em}
 .hero-lead{margin-top:16px;text-wrap:balance;font-size:clamp(16px,1.3vw,18px);color:var(--ink-2)}
