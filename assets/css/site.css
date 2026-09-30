@@ -108,13 +108,7 @@ button{font:inherit;color:inherit;cursor:pointer}
   -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 35%,#000 60%,transparent 100%);
           mask-image:linear-gradient(to bottom,transparent 0%,#000 35%,#000 60%,transparent 100%)}
 .hero-in{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
-.hero-chip{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border-radius:999px;
-  background:#fff;font-size:13.5px;font-weight:650;color:var(--ink);box-shadow:0 6px 20px -10px rgba(18,38,74,.35)}
-.hero-chip .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(47,107,179,.18);
-  animation:pulse 2.4s ease-in-out infinite}
-@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(47,107,179,.05)}}
-
-.hero-visual{position:relative;width:100%;display:flex;justify-content:center;margin-top:-4px;padding-bottom:calc(var(--fs)*.34);--fs:clamp(80px,13.5vw,200px)}
+.hero-visual{position:relative;width:100%;display:flex;justify-content:center;margin-top:clamp(12px,2vw,28px);padding-bottom:calc(var(--fs)*.34);--fs:clamp(80px,13.5vw,200px)}
 .display{font-family:"Anton",Impact,"Arial Narrow",sans-serif;font-size:var(--fs);line-height:.9;letter-spacing:.005em;
   display:flex;flex-direction:column;align-items:center;user-select:none}
 .display span{display:block;background:linear-gradient(180deg,#59606B 0%,#8A909A 45%,#DADDE3 100%);
@@ -327,7 +321,6 @@ button{font:inherit;color:inherit;cursor:pointer}
   .brand-txt b{font-size:15px}
   .brand-txt small{font-size:10px}
   .hero{padding-top:20px}
-  .hero-chip{align-self:center;font-size:12.5px;padding:8px 14px}
   .hero-visual{margin-top:14px;--fs:clamp(58px,21vw,112px)}
   .ball-wrap{width:calc(var(--fs)*2.05)}
   .hero-cta{width:100%}
